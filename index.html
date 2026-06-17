@@ -3,21 +3,19 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-    <title>Invitación · Rebeca & Juan</title>
+    <title>Invitación · Alan & Becca</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js">
     </script>
 
-    <!-- ============================================= -->
-    <!-- 1. FIREBASE SDK (v9 compat)                   -->
-    <!-- ============================================= -->
+    <!-- Firebase SDK (v9 compat) -->
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js">
     </script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js">
     </script>
 
     <style>
-        /* ========== ESTILOS COMPLETOS ========== */
+        /* ========== MISMOS ESTILOS QUE ANTES ========== */
         * {
             margin: 0;
             padding: 0;
@@ -660,9 +658,7 @@
                             <div class="input-group">
                                 <label><i class="fas fa-utensils"></i> Elige tu menú</label>
                                 <div class="menu-options" id="menuOptions">
-                                    <div class="menu-item selected" data-menu="carne"><i class="fas fa-drumstick-bite"></i> Carne <small>Res</small></div>
-                                    <div class="menu-item" data-menu="pescado"><i class="fas fa-fish"></i> Pescado <small>Salmón</small></div>
-                                    <div class="menu-item" data-menu="vegano"><i class="fas fa-leaf"></i> Vegano <small>Quinoa</small></div>
+                                    <!-- Las opciones se renderizan dinámicamente desde Firebase -->
                                 </div>
                             </div>
                             <div class="input-group">
@@ -719,15 +715,14 @@
         // =============================================
         // 🔥 REEMPLAZA ESTOS DATOS CON TU CONFIGURACIÓN DE FIREBASE 🔥
         const firebaseConfig = {
-  apiKey: "AIzaSyCOuNbjlGbFmO_v1XXlOrv28TcNNrzhqJ0",
-  authDomain: "bodas-65995.firebaseapp.com",
-  projectId: "bodas-65995",
-  storageBucket: "bodas-65995.firebasestorage.app",
-  messagingSenderId: "697327379541",
-  appId: "1:697327379541:web:f175f278ae4e2815ce60dc"
-};
+            apiKey: "AIzaSyCOuNbjlGbFmO_v1XXlOrv28TcNNrzhqJ0",
+            authDomain: "bodas-65995.firebaseapp.com",
+            projectId: "bodas-65995",
+            storageBucket: "bodas-65995.firebasestorage.app",
+            messagingSenderId: "697327379541",
+            appId: "1:697327379541:web:f175f278ae4e2815ce60dc"
+        };
 
-        // Inicializar Firebase
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
 
@@ -738,6 +733,8 @@
         let currentGuest = null;
         let currentGuests = 0;
         let maxAcomp = 0;
+        let menuItems = [];
+        let selectedMenuId = null;
 
         // =============================================
         // 3. LEER CÓDIGO DE LA URL
@@ -748,7 +745,75 @@
         }
 
         // =============================================
-        // 4. CARGAR DATOS DEL INVITADO DESDE FIRESTORE
+        // 4. ESCUCHAR CAMBIOS EN EL MENÚ (FIRESTORE)
+        // =============================================
+        function listenToMenu() {
+            db.collection('menu')
+                .orderBy('nombre')
+                .onSnapshot((snapshot) => {
+                    menuItems = [];
+                    snapshot.forEach((doc) => {
+                        const data = doc.data();
+                        menuItems.push({
+                            id: doc.id,
+                            ...data
+                        });
+                    });
+                    renderMenuOptions();
+                }, (error) => {
+                    console.error('Error al cargar el menú:', error);
+                });
+        }
+
+        // =============================================
+        // 5. RENDERIZAR OPCIONES DE MENÚ DINÁMICAMENTE
+        // =============================================
+        function renderMenuOptions() {
+            const container = document.getElementById('menuOptions');
+            container.innerHTML = '';
+
+            if (menuItems.length === 0) {
+                container.innerHTML = `<p style="color:var(--text-secondary); font-size:0.8rem; text-align:center; padding:10px;">No hay opciones de menú disponibles.</p>`;
+                return;
+            }
+
+            menuItems.forEach((item) => {
+                const div = document.createElement('div');
+                div.className = 'menu-item';
+                if (selectedMenuId === item.id) {
+                    div.classList.add('selected');
+                }
+                div.dataset.menuId = item.id;
+                div.innerHTML = `
+                            <i class="fas ${item.icono || 'fa-utensils'}"></i>
+                            ${item.nombre}
+                            <small>${item.descripcion || ''}</small>
+                        `;
+                div.addEventListener('click', function() {
+                    document.querySelectorAll('.menu-options .menu-item').forEach(m => m.classList.remove('selected'));
+                    this.classList.add('selected');
+                    selectedMenuId = this.dataset.menuId;
+                });
+                container.appendChild(div);
+            });
+
+            // Si hay un menú guardado previamente, seleccionarlo
+            if (currentGuest && currentGuest.menu) {
+                const menuItem = menuItems.find(m => m.id === currentGuest.menu);
+                if (menuItem) {
+                    selectedMenuId = menuItem.id;
+                    const items = container.querySelectorAll('.menu-item');
+                    items.forEach(el => {
+                        if (el.dataset.menuId === menuItem.id) {
+                            el.classList.add('selected');
+                        }
+                    });
+                }
+            }
+        }
+
+        // =============================================
+        // 6. CARGAR DATOS DEL INVITADO
         // =============================================
         function loadGuestData() {
             const code = getCodeFromURL();
@@ -757,7 +822,6 @@
                 return;
             }
 
-            // Buscar el invitado por su código único
             db.collection('invitados')
                 .where('code', '==', code)
                 .get()
@@ -766,13 +830,16 @@
                         showError('Este código de invitación no es válido o ha expirado.');
                         return;
                     }
-                    // Tomamos el primer documento (el código es único)
                     const doc = querySnapshot.docs[0];
                     const data = doc.data();
                     currentGuest = {
                         id: doc.id,
                         ...data
                     };
+                    // Si tiene menú guardado, seleccionarlo
+                    if (currentGuest.menu) {
+                        selectedMenuId = currentGuest.menu;
+                    }
                     renderInvitation(currentGuest);
                 })
                 .catch((error) => {
@@ -782,7 +849,7 @@
         }
 
         // =============================================
-        // 5. RENDERIZAR INVITACIÓN
+        // 7. RENDERIZAR INVITACIÓN
         // =============================================
         function renderInvitation(guest) {
             currentGuests = guest.maxGuests || 0;
@@ -795,6 +862,9 @@
             document.getElementById('qrName').textContent = guest.name;
             document.getElementById('qrMesa').textContent = guest.table;
             document.getElementById('maxAcompLabel').textContent = guest.maxGuests;
+
+            const savedGuests = guest.acompanantes ?? guest.maxGuests;
+            currentGuests = savedGuests;
             document.getElementById('guestCount').textContent = currentGuests;
 
             generateQR(guest.code, guest.name);
@@ -827,17 +897,17 @@
                 confirmBtn.disabled = false;
             }
 
-            // Ocultar splash y mostrar app
+            // Renderizar menú (ya se llama desde listenToMenu)
+            renderMenuOptions();
+
             document.getElementById('splash').classList.add('hide');
             document.getElementById('main-app').classList.add('active');
-
-            // Iniciar countdown
             updateCountdown();
             setInterval(updateCountdown, 1000);
         }
 
         // =============================================
-        // 6. FUNCIONES AUXILIARES
+        // 8. FUNCIONES AUXILIARES
         // =============================================
         function showError(message) {
             document.getElementById('main-app').innerHTML = `
@@ -886,7 +956,7 @@
         }
 
         // =============================================
-        // 7. NAVEGACIÓN TABS
+        // 9. NAVEGACIÓN TABS
         // =============================================
         document.querySelectorAll('.bottom-nav .nav-item').forEach(item => {
             item.addEventListener('click', function() {
@@ -902,7 +972,7 @@
         });
 
         // =============================================
-        // 8. RSVP LOGIC (TOGGLE Y GUARDADO EN FIRESTORE)
+        // 10. RSVP LOGIC
         // =============================================
         const rsvpYes = document.getElementById('rsvpYes');
         const rsvpNo = document.getElementById('rsvpNo');
@@ -940,37 +1010,36 @@
             }
         });
 
-        document.querySelectorAll('.menu-options .menu-item').forEach(item => {
-            item.addEventListener('click', function() {
-                document.querySelectorAll('.menu-options .menu-item').forEach(m => m.classList.remove('selected'));
-                this.classList.add('selected');
-            });
-        });
-
-        // GUARDAR CONFIRMACIÓN EN FIRESTORE
+        // =============================================
+        // 11. GUARDAR CONFIRMACIÓN EN FIRESTORE
+        // =============================================
         confirmBtn.addEventListener('click', function() {
             if (!currentGuest || this.disabled) return;
 
             const isAttending = rsvpYes.className.includes('active-yes');
             const newStatus = isAttending ? 'confirmado' : 'rechazado';
-            const menuSelected = document.querySelector('.menu-options .menu-item.selected')?.dataset.menu ||
-                'No definido';
             const alergias = document.getElementById('alergiasText').value || 'Ninguna';
+            const acompanantes = currentGuests;
+
+            // Obtener el ID del menú seleccionado
+            const selectedItem = document.querySelector('.menu-options .menu-item.selected');
+            const menuId = selectedItem ? selectedItem.dataset.menuId : null;
 
             // Actualizar en Firestore
             const docRef = db.collection('invitados').doc(currentGuest.id);
             docRef.update({
                     status: newStatus,
-                    menu: menuSelected,
+                    menu: menuId,
                     alergias: alergias,
+                    acompanantes: acompanantes,
                     updatedAt: firebase.firestore.FieldValue.serverTimestamp()
                 })
                 .then(() => {
-                    // Actualizar UI
                     if (newStatus === 'confirmado') {
                         this.innerHTML = '<i class="fas fa-check-circle"></i> Confirmado ✅';
                         this.className = 'btn-confirm confirmed';
-                        showToast('✅ ¡Asistencia confirmada!', `Menú: ${menuSelected}`);
+                        const menuName = menuItems.find(m => m.id === menuId)?.nombre || 'No definido';
+                        showToast('✅ ¡Asistencia confirmada!', `Menú: ${menuName}`);
                     } else {
                         this.innerHTML = '<i class="fas fa-times-circle"></i> No asistirás ❌';
                         this.className = 'btn-confirm rejected';
@@ -985,7 +1054,7 @@
         });
 
         // =============================================
-        // 9. TOAST
+        // 12. TOAST
         // =============================================
         function showToast(title, detail) {
             const toast = document.getElementById('toast');
@@ -1002,10 +1071,9 @@
         });
 
         // =============================================
-        // 10. SPLASH E INICIALIZACIÓN
+        // 13. SPLASH E INICIALIZACIÓN
         // =============================================
         document.getElementById('enterApp').addEventListener('click', () => {
-            // Ya tenemos los datos o estamos cargando
             if (!currentGuest) {
                 loadGuestData();
             } else {
@@ -1014,15 +1082,15 @@
             }
         });
 
-        // Carga automática al abrir la página (si el usuario no hace clic en splash)
         window.addEventListener('load', function() {
-            // Si hay código en la URL, precargamos en background
             if (getCodeFromURL()) {
+                // Cargar menú y datos del invitado en paralelo
+                listenToMenu();
                 loadGuestData();
             }
         });
 
-        console.log('📱 Página de invitado con Firebase.');
+        console.log('📱 Página de invitado con menú dinámico desde Firebase.');
     </script>
 
 </body>
