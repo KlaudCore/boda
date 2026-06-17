@@ -826,9 +826,9 @@
                 if (selectedMenu && item.nombre === selectedMenu) {
                     div.classList.add('selected');
                 }
-                const icono = item.icono || 'fa-utensils';
+                const emoji = item.icono || '🍽️';
                 div.innerHTML = `
-                            <i class="fas ${icono}"></i>
+                            <span style="font-size:2rem; display:block; line-height:1.2;">${emoji}</span>
                             ${item.nombre}
                             ${item.descripcion ? `<small>${item.descripcion}</small>` : ''}
                         `;
