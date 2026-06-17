@@ -1,0 +1,988 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dashboard · Rebeca & Juan</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+
+    <!-- Firebase SDK (v9 compat) -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js">
+    </script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js">
+    </script>
+
+    <style>
+        /* ========== ESTILOS COMPLETOS (mismos que antes) ========== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, 'Inter', 'Segoe UI', sans-serif;
+        }
+        :root {
+            --bg-image: url('https://images.unsplash.com/photo-1511795409834-ef04bbd61622?w=1200&q=80');
+            --glass-bg: rgba(255, 255, 255, 0.08);
+            --glass-border: 0.5px solid rgba(255, 255, 255, 0.15);
+            --text-primary: #1a1a1a;
+            --text-secondary: #475569;
+            --card-bg: rgba(255, 255, 255, 0.5);
+            --table-hover: #fafcff;
+            --badge-pending: #f1f5f9;
+            --badge-sent: #dbeafe;
+            --badge-confirmed: #dcfce7;
+            --badge-thinking: #fef9c3;
+            --badge-declined: #fee2e2;
+            --btn-primary: #d4af37;
+            --btn-primary-hover: #c09e2e;
+            --toast-bg: #1e293b;
+            --toast-text: white;
+        }
+        body {
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            background: var(--bg-image) no-repeat center center fixed;
+            background-size: cover;
+            background-color: #1a1410;
+            transition: background 0.3s ease;
+        }
+        .dashboard-container {
+            width: 100%;
+            max-width: 1280px;
+            background: var(--glass-bg);
+            backdrop-filter: blur(40px) saturate(1.2);
+            -webkit-backdrop-filter: blur(40px) saturate(1.2);
+            border-radius: 56px;
+            border: var(--glass-border);
+            box-shadow: 0 30px 80px rgba(0, 0, 0, 0.6);
+            padding: 30px 32px;
+            transition: background 0.3s ease;
+            position: relative;
+        }
+        body.dark-mode {
+            --glass-bg: rgba(0, 0, 0, 0.5);
+            --glass-border: 0.5px solid rgba(255, 255, 255, 0.05);
+            --text-primary: #f1f5f9;
+            --text-secondary: #94a3b8;
+            --card-bg: rgba(0, 0, 0, 0.3);
+            --table-hover: rgba(255, 255, 255, 0.02);
+            --badge-pending: #334155;
+            --badge-sent: #1e3a5f;
+            --badge-confirmed: #14532d;
+            --badge-thinking: #713f12;
+            --badge-declined: #7f1d1d;
+            --btn-primary: #d4af37;
+            --btn-primary-hover: #e6c75a;
+            --toast-bg: #0f172a;
+            --toast-text: #f1f5f9;
+        }
+        body.dark-mode .dashboard-container {
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(50px) saturate(1.2);
+        }
+        .dash-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+        .dash-header .title-group h1 {
+            font-size: 2rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            letter-spacing: -0.5px;
+        }
+        .dash-header .title-group h1 i {
+            color: #d4af37;
+            margin-right: 8px;
+        }
+        .dash-header .title-group .subtitle {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            font-weight: 300;
+        }
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+        .btn {
+            padding: 10px 24px;
+            border-radius: 60px;
+            border: none;
+            font-weight: 600;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: var(--card-bg);
+            color: var(--text-primary);
+            border: 0.5px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+        }
+        .btn-primary {
+            background: var(--btn-primary);
+            color: #0a0508;
+            box-shadow: 0 4px 16px rgba(212, 175, 55, 0.3);
+        }
+        .btn-primary:hover {
+            background: var(--btn-primary-hover);
+            transform: translateY(-2px);
+        }
+        .btn-outline {
+            background: transparent;
+            border: 1px solid var(--text-secondary);
+            color: var(--text-secondary);
+        }
+        .btn-outline:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+        .btn-icon {
+            padding: 10px 14px;
+            border-radius: 60px;
+            background: var(--card-bg);
+            border: 0.5px solid rgba(255, 255, 255, 0.1);
+            color: var(--text-primary);
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: 0.25s ease;
+        }
+        .btn-icon:hover {
+            background: rgba(255, 255, 255, 0.15);
+        }
+        .stats {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            background: var(--card-bg);
+            backdrop-filter: blur(20px);
+            padding: 10px 24px;
+            border-radius: 60px;
+            border: 0.5px solid rgba(255, 255, 255, 0.05);
+            margin-bottom: 28px;
+        }
+        .stat-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+        .stat-item .num {
+            font-weight: 700;
+            font-size: 1.1rem;
+            color: var(--text-primary);
+        }
+        .stat-item .dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+        .dot.green { background: #22c55e; }
+        .dot.yellow { background: #eab308; }
+        .dot.red { background: #ef4444; }
+        .dot.gray { background: #94a3b8; }
+        .dot.blue { background: #3b82f6; }
+
+        .table-wrapper {
+            overflow-x: auto;
+            border-radius: 24px;
+            background: var(--card-bg);
+            backdrop-filter: blur(20px);
+            border: 0.5px solid rgba(255, 255, 255, 0.05);
+            margin-bottom: 20px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9rem;
+            color: var(--text-primary);
+        }
+        thead {
+            background: rgba(255, 255, 255, 0.03);
+            border-bottom: 0.5px solid rgba(255, 255, 255, 0.05);
+        }
+        th {
+            text-align: left;
+            padding: 16px 20px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        td {
+            padding: 14px 20px;
+            border-bottom: 0.5px solid rgba(255, 255, 255, 0.03);
+            vertical-align: middle;
+        }
+        tr:last-child td { border-bottom: none; }
+        tr:hover { background: var(--table-hover); }
+
+        .badge-status {
+            padding: 4px 14px;
+            border-radius: 60px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+            display: inline-block;
+            background: var(--badge-pending);
+            color: var(--text-secondary);
+        }
+        .badge-sent { background: var(--badge-sent); color: #2563eb; }
+        .badge-confirmed { background: var(--badge-confirmed); color: #15803d; }
+        .badge-thinking { background: var(--badge-thinking); color: #a16207; }
+        .badge-declined { background: var(--badge-declined); color: #b91c1c; }
+
+        .link-preview {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 4px 12px;
+            border-radius: 30px;
+            font-size: 0.7rem;
+            color: var(--text-secondary);
+            font-family: monospace;
+            display: inline-block;
+            max-width: 180px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        .action-buttons {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+        .btn-sm {
+            padding: 6px 12px;
+            font-size: 0.7rem;
+            border-radius: 40px;
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--text-primary);
+            border: 0.5px solid rgba(255, 255, 255, 0.05);
+        }
+        .btn-sm.whatsapp-sm { background: #25D366; color: white; }
+        .btn-sm.whatsapp-sm:hover { background: #1da851; }
+        .btn-sm.copy-sm { background: rgba(255, 255, 255, 0.08); color: var(--text-primary); }
+        .btn-sm.copy-sm:hover { background: rgba(255, 255, 255, 0.15); }
+        .btn-sm.reset-sm { background: rgba(239, 68, 68, 0.1); color: #ef4444; }
+        .btn-sm.reset-sm:hover { background: rgba(239, 68, 68, 0.2); }
+        .btn-sm.delete-sm { background: rgba(239, 68, 68, 0.15); color: #dc2626; }
+        .btn-sm.delete-sm:hover { background: rgba(239, 68, 68, 0.3); }
+
+        .footer-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 14px;
+            margin-top: 8px;
+        }
+        .footer-actions .left {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        .footer-actions .right {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+        }
+
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(8px);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        .modal-overlay.active { display: flex; }
+        .modal-box {
+            background: var(--card-bg);
+            backdrop-filter: blur(40px);
+            border-radius: 40px;
+            border: 0.5px solid rgba(255, 255, 255, 0.1);
+            padding: 36px 40px;
+            max-width: 560px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 40px 80px rgba(0, 0, 0, 0.4);
+            color: var(--text-primary);
+        }
+        .modal-box h2 {
+            font-size: 1.6rem;
+            font-weight: 600;
+            margin-bottom: 6px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .modal-box h2 i { color: #d4af37; }
+        .modal-box .sub {
+            color: var(--text-secondary);
+            margin-bottom: 24px;
+            font-size: 0.9rem;
+        }
+        .modal-box .form-group { margin-bottom: 18px; }
+        .modal-box label {
+            display: block;
+            font-weight: 500;
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            margin-bottom: 4px;
+        }
+        .modal-box input,
+        .modal-box select {
+            width: 100%;
+            padding: 12px 16px;
+            border-radius: 16px;
+            border: 0.5px solid rgba(255, 255, 255, 0.1);
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--text-primary);
+            font-size: 0.95rem;
+            transition: 0.2s;
+        }
+        .modal-box input:focus,
+        .modal-box select:focus {
+            outline: none;
+            border-color: #d4af37;
+            background: rgba(255, 255, 255, 0.08);
+        }
+        .modal-box .file-upload {
+            border: 2px dashed rgba(255, 255, 255, 0.15);
+            padding: 20px;
+            border-radius: 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .modal-box .file-upload:hover {
+            border-color: #d4af37;
+            background: rgba(212, 175, 55, 0.03);
+        }
+        .modal-box .file-upload i {
+            font-size: 2rem;
+            color: #d4af37;
+            display: block;
+            margin-bottom: 8px;
+        }
+        .modal-box .file-upload small { color: var(--text-secondary); }
+        .modal-box .btn-group {
+            display: flex;
+            gap: 12px;
+            margin-top: 24px;
+            justify-content: flex-end;
+        }
+        .modal-box .btn-group .btn { flex: 1; justify-content: center; }
+
+        .toast-dash {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: var(--toast-bg);
+            color: var(--toast-text);
+            padding: 16px 28px;
+            border-radius: 60px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            transform: translateY(100px);
+            opacity: 0;
+            transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+            z-index: 999;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            backdrop-filter: blur(20px);
+            border: 0.5px solid rgba(255, 255, 255, 0.05);
+        }
+        .toast-dash.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+        .toast-dash i { font-size: 1.4rem; color: #22c55e; }
+        .toast-dash .toast-msg { font-weight: 500; }
+
+        @media (max-width: 768px) {
+            .dashboard-container { padding: 18px 16px; border-radius: 32px; }
+            .dash-header { flex-direction: column; align-items: stretch; }
+            .dash-header .title-group h1 { font-size: 1.5rem; }
+            .stats { gap: 12px; padding: 10px 18px; border-radius: 40px; }
+            .stat-item { font-size: 0.75rem; }
+            .table-wrapper { border-radius: 16px; }
+            th, td { padding: 10px 12px; font-size: 0.75rem; }
+            .link-preview { max-width: 100px; font-size: 0.6rem; }
+            .action-buttons .btn-sm { padding: 4px 8px; font-size: 0.6rem; }
+            .footer-actions { flex-direction: column; align-items: stretch; }
+            .modal-box { padding: 24px 20px; }
+            .btn { padding: 8px 16px; font-size: 0.8rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="dashboard-container">
+
+        <div class="dash-header">
+            <div class="title-group">
+                <h1><i class="fas fa-crown"></i> Bienvenidos <span style="font-weight:300;">(Rebeca &amp; Juan)</span></h1>
+                <span class="subtitle">· Panel de control · <span id="syncStatus" style="color:var(--gold); font-weight:600;">🟢 Conectado a Firebase</span></span>
+            </div>
+            <div class="header-actions">
+                <button class="btn-icon" id="themeToggle" title="Cambiar tema"><i class="fas fa-moon"></i></button>
+            </div>
+        </div>
+
+        <div class="stats" id="statsDisplay">
+            <div class="stat-item"><span class="dot gray"></span> Total: <span class="num" id="totalCount">0</span></div>
+            <div class="stat-item"><span class="dot blue"></span> Enviados: <span class="num" id="sentCount">0</span></div>
+            <div class="stat-item"><span class="dot green"></span> Confirmados: <span class="num" id="confirmedCount">0</span></div>
+            <div class="stat-item"><span class="dot yellow"></span> Pensando: <span class="num" id="thinkingCount">0</span></div>
+            <div class="stat-item"><span class="dot red"></span> Rechazados: <span class="num" id="declinedCount">0</span></div>
+        </div>
+
+        <div class="table-wrapper">
+            <table>
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Nombre</th>
+                        <th>Mesa</th>
+                        <th>Teléfono</th>
+                        <th>Enlace Único</th>
+                        <th>Estado</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody id="guestTableBody">
+                    <tr><td colspan="7" style="text-align:center; padding:40px; color:var(--text-secondary);"><i class="fas fa-spinner fa-spin"></i> Cargando invitados...</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="footer-actions">
+            <div class="left">
+                <button class="btn btn-primary" id="openAddModal"><i class="fas fa-plus-circle"></i> Añadir invitado</button>
+                <button class="btn btn-outline" id="downloadTemplateBtn"><i class="fas fa-download"></i> Descargar plantilla CSV</button>
+                <button class="btn btn-outline" id="resetDataBtn"><i class="fas fa-undo-alt"></i> Reiniciar datos (Ejemplo)</button>
+            </div>
+            <div class="right">
+                <i class="fas fa-sync-alt fa-fw"></i> Sincronización en tiempo real
+            </div>
+        </div>
+
+    </div>
+
+    <!-- MODAL -->
+    <div class="modal-overlay" id="addModal">
+        <div class="modal-box">
+            <h2><i class="fas fa-user-plus"></i> Añadir invitado</h2>
+            <p class="sub">Ingresa los datos manualmente o importa un archivo CSV.</p>
+            <div class="form-group">
+                <label>Nombre completo</label>
+                <input type="text" id="newName" placeholder="Ej: María González" />
+            </div>
+            <div class="form-group">
+                <label>Teléfono (con código país, sin +)</label>
+                <input type="text" id="newPhone" placeholder="Ej: 5215512345678" />
+            </div>
+            <div class="form-group">
+                <label>Email</label>
+                <input type="email" id="newEmail" placeholder="Ej: maria@mail.com" />
+            </div>
+            <div class="form-group" style="display:grid; grid-template-columns: 1fr 1fr; gap:12px;">
+                <div>
+                    <label>Mesa asignada</label>
+                    <input type="number" id="newTable" placeholder="1" min="1" />
+                </div>
+                <div>
+                    <label>Máx. acompañantes</label>
+                    <input type="number" id="newMaxGuests" placeholder="0" min="0" />
+                </div>
+            </div>
+            <button class="btn btn-primary" id="addManualBtn" style="width:100%; justify-content:center; margin-bottom:20px;">
+                <i class="fas fa-save"></i> Agregar invitado
+            </button>
+            <hr style="border:0.5px solid rgba(255,255,255,0.05); margin:20px 0;" />
+            <div class="file-upload" id="fileUploadArea">
+                <i class="fas fa-cloud-upload-alt"></i>
+                <div><strong>Importar CSV</strong></div>
+                <small>Arrastra o haz clic para seleccionar archivo</small>
+                <input type="file" id="fileInput" accept=".csv" style="display:none;" />
+            </div>
+            <div style="margin-top:10px; font-size:0.75rem; color:var(--text-secondary);">
+                <i class="fas fa-info-circle"></i> El CSV debe tener columnas: <strong>Nombre,Email,Teléfono,Mesa Asignada,Máximo Acompañantes</strong>
+            </div>
+            <div class="btn-group">
+                <button class="btn btn-outline" id="closeModalBtn">Cancelar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- TOAST -->
+    <div id="toastDash" class="toast-dash">
+        <i class="fas fa-check-circle"></i>
+        <span class="toast-msg" id="toastMessage">Mensaje</span>
+    </div>
+
+    <script>
+        // =============================================
+        // 1. CONFIGURACIÓN DE FIREBASE
+        // =============================================
+        // 🔥 REEMPLAZA ESTOS DATOS CON TU CONFIGURACIÓN DE FIREBASE 🔥
+        const firebaseConfig = {
+  apiKey: "AIzaSyCOuNbjlGbFmO_v1XXlOrv28TcNNrzhqJ0",
+  authDomain: "bodas-65995.firebaseapp.com",
+  projectId: "bodas-65995",
+  storageBucket: "bodas-65995.firebasestorage.app",
+  messagingSenderId: "697327379541",
+  appId: "1:697327379541:web:f175f278ae4e2815ce60dc"
+};
+
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
+        // =============================================
+        // 2. VARIABLES GLOBALES
+        // =============================================
+        const BASE_URL = 'https://klaudcore.github.io/boda/';
+        let guests = [];
+
+        // =============================================
+        // 3. ESCUCHAR CAMBIOS EN FIRESTORE (TIEMPO REAL)
+        // =============================================
+        function listenToGuests() {
+            db.collection('invitados')
+                .orderBy('name') // Ordenar alfabéticamente
+                .onSnapshot((snapshot) => {
+                    guests = [];
+                    snapshot.forEach((doc) => {
+                        const data = doc.data();
+                        guests.push({
+                            id: doc.id,
+                            ...data
+                        });
+                    });
+                    renderTable();
+                    document.getElementById('syncStatus').innerHTML = '🟢 Conectado a Firebase';
+                }, (error) => {
+                    console.error('Error en la escucha de Firestore:', error);
+                    document.getElementById('syncStatus').innerHTML = '🔴 Error de conexión';
+                    showToast('⚠️ Error de conexión con Firebase.');
+                });
+        }
+
+        // =============================================
+        // 4. GENERAR CÓDIGO ÚNICO
+        // =============================================
+        function generateCode() {
+            const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+            let code = '';
+            for (let i = 0; i < 5; i++) {
+                code += chars.charAt(Math.floor(Math.random() * chars.length));
+            }
+            return code;
+        }
+
+        // =============================================
+        // 5. RENDERIZAR TABLA Y ESTADÍSTICAS
+        // =============================================
+        function renderTable() {
+            const tbody = document.getElementById('guestTableBody');
+            tbody.innerHTML = '';
+            if (guests.length === 0) {
+                tbody.innerHTML =
+                    `<tr><td colspan="7" style="text-align:center; padding:40px; color:var(--text-secondary);">No hay invitados. Añade algunos desde el botón "Añadir invitado".</td></tr>`;
+                updateStats();
+                return;
+            }
+
+            guests.forEach((guest, index) => {
+                // Enlace único con dominio fijo
+                const link = `${BASE_URL}?codigo=${guest.code}`;
+
+                let badgeClass = 'badge-status';
+                let statusText = '⏳ Pendiente';
+                switch (guest.status) {
+                    case 'sent':
+                        badgeClass += ' badge-sent';
+                        statusText = '📨 Enviado';
+                        break;
+                    case 'confirmado':
+                        badgeClass += ' badge-confirmed';
+                        statusText = '✅ Confirmado';
+                        break;
+                    case 'pensando':
+                        badgeClass += ' badge-thinking';
+                        statusText = '🤔 Lo está pensando';
+                        break;
+                    case 'rechazado':
+                        badgeClass += ' badge-declined';
+                        statusText = '❌ No asistirá';
+                        break;
+                    default:
+                        badgeClass += ' badge-pending';
+                        statusText = '⏳ Pendiente';
+                }
+
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                            <td>${index + 1}</td>
+                            <td><strong>${guest.name}</strong></td>
+                            <td>Mesa ${guest.table}</td>
+                            <td style="font-size:0.8rem; color:var(--text-secondary);">${guest.phone}</td>
+                            <td><span class="link-preview" title="${link}">${link}</span></td>
+                            <td><span class="${badgeClass}">${statusText}</span></td>
+                            <td>
+                                <div class="action-buttons">
+                                    <button class="btn-sm copy-sm" onclick="copyLink('${link}', '${guest.name}')"><i class="fas fa-copy"></i> Link</button>
+                                    <button class="btn-sm whatsapp-sm" onclick="sendWhatsApp('${guest.phone}', '${guest.name}', '${link}', '${guest.id}')"><i class="fab fa-whatsapp"></i> WhatsApp</button>
+                                    <button class="btn-sm reset-sm" onclick="resetGuestStatus('${guest.id}')"><i class="fas fa-undo"></i></button>
+                                    <button class="btn-sm delete-sm" onclick="deleteGuest('${guest.id}')"><i class="fas fa-trash-alt"></i></button>
+                                </div>
+                            </td>
+                        `;
+                tbody.appendChild(row);
+            });
+            updateStats();
+        }
+
+        function updateStats() {
+            const total = guests.length;
+            const sent = guests.filter(g => g.status === 'sent').length;
+            const confirmed = guests.filter(g => g.status === 'confirmado').length;
+            const thinking = guests.filter(g => g.status === 'pensando').length;
+            const declined = guests.filter(g => g.status === 'rechazado').length;
+            document.getElementById('totalCount').textContent = total;
+            document.getElementById('sentCount').textContent = sent;
+            document.getElementById('confirmedCount').textContent = confirmed;
+            document.getElementById('thinkingCount').textContent = thinking;
+            document.getElementById('declinedCount').textContent = declined;
+        }
+
+        // =============================================
+        // 6. FUNCIONES CRUD CON FIRESTORE
+        // =============================================
+        // Añadir invitado
+        function addGuestToFirestore(guestData) {
+            return db.collection('invitados').add({
+                ...guestData,
+                status: 'pending',
+                createdAt: firebase.firestore.FieldValue.serverTimestamp()
+            });
+        }
+
+        // Actualizar estado
+        function updateGuestStatus(id, newStatus) {
+            return db.collection('invitados').doc(id).update({
+                status: newStatus,
+                updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+            });
+        }
+
+        // Eliminar invitado
+        function deleteGuestFromFirestore(id) {
+            return db.collection('invitados').doc(id).delete();
+        }
+
+        // =============================================
+        // 7. ACCIONES DE LA UI
+        // =============================================
+        function copyLink(link, name) {
+            navigator.clipboard.writeText(link).then(() => {
+                showToast(`🔗 Link de ${name} copiado`);
+            }).catch(() => {
+                const input = document.createElement('input');
+                input.value = link;
+                document.body.appendChild(input);
+                input.select();
+                document.execCommand('copy');
+                document.body.removeChild(input);
+                showToast(`🔗 Link de ${name} copiado`);
+            });
+        }
+
+        function sendWhatsApp(phone, name, link, id) {
+            const fullLink = link;
+            const mensaje = `Hola ${name},
+
+        Has sido invitado a la boda de Rebeca y Juan.
+
+        Fecha: 15 de Diciembre de 2026
+        Lugar: Jardín del Lago
+
+        Confirma tu asistencia aquí:
+        ${fullLink}
+
+        ¡Te esperamos!`;
+
+            const mensajeCodificado = encodeURIComponent(mensaje);
+            const url = `https://wa.me/${phone}?text=${mensajeCodificado}`;
+            window.open(url, '_blank');
+
+            // Marcar como enviado en Firestore
+            const guest = guests.find(g => g.id === id);
+            if (guest && (guest.status === 'pending' || guest.status === 'pensando')) {
+                updateGuestStatus(id, 'sent')
+                    .then(() => {
+                        showToast(`📨 Mensaje enviado a ${name}. Estado: Enviado`);
+                    })
+                    .catch((error) => {
+                        console.error('Error al actualizar estado:', error);
+                        showToast('⚠️ Error al actualizar el estado.');
+                    });
+            } else if (guest) {
+                showToast(`💬 Chat abierto con ${name} (${guest.status})`);
+            } else {
+                showToast(`💬 Chat abierto con ${name}`);
+            }
+        }
+
+        function resetGuestStatus(id) {
+            const guest = guests.find(g => g.id === id);
+            if (!guest) return;
+            if (confirm(`¿Reiniciar estado de ${guest.name} a "Pendiente"?`)) {
+                updateGuestStatus(id, 'pending')
+                    .then(() => {
+                        showToast(`↩️ ${guest.name} reiniciado a Pendiente`);
+                    })
+                    .catch((error) => {
+                        console.error('Error al reiniciar:', error);
+                        showToast('⚠️ Error al reiniciar el estado.');
+                    });
+            }
+        }
+
+        function deleteGuest(id) {
+            const guest = guests.find(g => g.id === id);
+            if (!guest) return;
+            if (confirm(`⚠️ ¿Estás seguro de eliminar a ${guest.name}?`)) {
+                deleteGuestFromFirestore(id)
+                    .then(() => {
+                        showToast(`🗑️ ${guest.name} eliminado.`);
+                    })
+                    .catch((error) => {
+                        console.error('Error al eliminar:', error);
+                        showToast('⚠️ Error al eliminar el invitado.');
+                    });
+            }
+        }
+
+        // =============================================
+        // 8. REINICIAR DATOS (SOLO EJEMPLO)
+        // =============================================
+        function resetAllData() {
+            if (!confirm('⚠️ ¿Seguro que quieres reiniciar los datos de ejemplo? Esto eliminará todos los invitados actuales.'))
+                return;
+
+            // Primero eliminamos todos los documentos actuales
+            const batch = db.batch();
+            guests.forEach(guest => {
+                const docRef = db.collection('invitados').doc(guest.id);
+                batch.delete(docRef);
+            });
+            batch.commit().then(() => {
+                // Luego añadimos los de ejemplo
+                const sampleGuests = [
+                    { code: 'ABX92', name: 'Carlos Pérez', table: 12, phone: '5215512345678',
+                        email: 'carlos@mail.com', maxGuests: 2, status: 'pending' },
+                    { code: 'CDY33', name: 'Ana García', table: 8, phone: '5215587654321', email: 'ana@mail.com',
+                        maxGuests: 1, status: 'pensando' },
+                    { code: 'EFZ44', name: 'Pedro Ruiz', table: 12, phone: '5215533221144', email: 'pedro@mail.com',
+                        maxGuests: 0, status: 'rechazado' },
+                    { code: 'GHW77', name: 'Marta López', table: 5, phone: '5215544112233', email: 'marta@mail.com',
+                        maxGuests: 1, status: 'pending' },
+                    { code: 'JKL88', name: 'Luis Fernández', table: 7, phone: '5215566778899', email: 'luis@mail.com',
+                        maxGuests: 2, status: 'sent' },
+                    { code: 'MNO99', name: 'Sofía Ramírez', table: 3, phone: '5215599887766', email: 'sofia@mail.com',
+                        maxGuests: 1, status: 'confirmado' }
+                ];
+
+                const promises = sampleGuests.map(g => {
+                    return db.collection('invitados').add({
+                        ...g,
+                        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+                });
+
+                Promise.all(promises)
+                    .then(() => showToast('🔄 Datos de ejemplo cargados.'))
+                    .catch(() => showToast('⚠️ Error al cargar datos de ejemplo.'));
+            }).catch(() => {
+                showToast('⚠️ Error al reiniciar datos.');
+            });
+        }
+
+        // =============================================
+        // 9. BOTÓN DE DESCARGA DE PLANTILLA CSV (NUEVO)
+        // =============================================
+        function downloadTemplate() {
+            const content = 'Nombre,Email,Teléfono,Mesa Asignada,Máximo Acompañantes\nJuan Pérez,juan@mail.com,5215512345678,1,2\nMaría Gómez,maria@mail.com,5215587654321,2,1\nCarlos Ruiz,carlos@mail.com,5215533221144,3,0';
+            const blob = new Blob([content], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'plantilla_invitados.csv';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            showToast('📥 Plantilla descargada.');
+        }
+
+        document.getElementById('downloadTemplateBtn').addEventListener('click', downloadTemplate);
+
+        // =============================================
+        // 10. MODAL DE AÑADIR / IMPORTAR
+        // =============================================
+        const modal = document.getElementById('addModal');
+        document.getElementById('openAddModal').addEventListener('click', () => modal.classList.add('active'));
+        document.getElementById('closeModalBtn').addEventListener('click', () => modal.classList.remove('active'));
+        modal.addEventListener('click', (e) => { if (e.target === modal) modal.classList.remove('active'); });
+
+        // Añadir manual
+        document.getElementById('addManualBtn').addEventListener('click', () => {
+            const name = document.getElementById('newName').value.trim();
+            const phone = document.getElementById('newPhone').value.trim();
+            const email = document.getElementById('newEmail').value.trim();
+            const table = parseInt(document.getElementById('newTable').value) || 1;
+            const maxGuests = parseInt(document.getElementById('newMaxGuests').value) || 0;
+
+            if (!name || !phone) { showToast('⚠️ Nombre y teléfono son obligatorios.'); return; }
+
+            const newGuest = {
+                code: generateCode(),
+                name,
+                phone,
+                email: email || 'sin-email@mail.com',
+                table,
+                maxGuests,
+                status: 'pending'
+            };
+
+            addGuestToFirestore(newGuest)
+                .then(() => {
+                    modal.classList.remove('active');
+                    showToast(`✅ ${name} añadido correctamente.`);
+                    document.getElementById('newName').value = '';
+                    document.getElementById('newPhone').value = '';
+                    document.getElementById('newEmail').value = '';
+                    document.getElementById('newTable').value = '';
+                    document.getElementById('newMaxGuests').value = '';
+                })
+                .catch((error) => {
+                    console.error('Error al añadir:', error);
+                    showToast('⚠️ Error al añadir el invitado.');
+                });
+        });
+
+        // Importar CSV
+        const fileInput = document.getElementById('fileInput');
+        const fileUploadArea = document.getElementById('fileUploadArea');
+        fileUploadArea.addEventListener('click', () => fileInput.click());
+        fileInput.addEventListener('change', function(e) {
+            const file = this.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const text = e.target.result;
+                const lines = text.split('\n').filter(line => line.trim() !== '');
+                if (lines.length < 2) { showToast('⚠️ Archivo vacío.'); return; }
+                const imported = [];
+                for (let i = 1; i < lines.length; i++) {
+                    const cols = lines[i].split(',').map(c => c.trim());
+                    if (cols.length < 5) continue;
+                    const name = cols[0],
+                        email = cols[1],
+                        phone = cols[2];
+                    const table = parseInt(cols[3]) || 1;
+                    const maxGuests = parseInt(cols[4]) || 0;
+                    if (name) {
+                        imported.push({
+                            code: generateCode(),
+                            name,
+                            phone,
+                            email: email || 'sin-email@mail.com',
+                            table,
+                            maxGuests,
+                            status: 'pending'
+                        });
+                    }
+                }
+                if (imported.length === 0) { showToast('⚠️ No se encontraron datos.'); return; }
+
+                const promises = imported.map(g => db.collection('invitados').add(g));
+                Promise.all(promises)
+                    .then(() => {
+                        modal.classList.remove('active');
+                        showToast(`✅ ${imported.length} invitados importados.`);
+                        fileInput.value = '';
+                    })
+                    .catch(() => showToast('⚠️ Error al importar.'));
+            };
+            reader.readAsText(file);
+        });
+
+        // =============================================
+        // 11. TEMA OSCURO / CLARO
+        // =============================================
+        const themeToggle = document.getElementById('themeToggle');
+        const iconTheme = themeToggle.querySelector('i');
+
+        function applyTheme(theme) {
+            if (theme === 'dark') {
+                document.body.classList.add('dark-mode');
+                iconTheme.className = 'fas fa-sun';
+                localStorage.setItem('theme', 'dark');
+            } else {
+                document.body.classList.remove('dark-mode');
+                iconTheme.className = 'fas fa-moon';
+                localStorage.setItem('theme', 'light');
+            }
+        }
+        applyTheme(localStorage.getItem('theme') || 'light');
+        themeToggle.addEventListener('click', () => {
+            applyTheme(document.body.classList.contains('dark-mode') ? 'light' : 'dark');
+        });
+
+        // =============================================
+        // 12. TOAST
+        // =============================================
+        function showToast(message) {
+            const toast = document.getElementById('toastDash');
+            document.getElementById('toastMessage').textContent = message;
+            toast.classList.add('show');
+            clearTimeout(window.toastTimeout);
+            window.toastTimeout = setTimeout(() => toast.classList.remove('show'), 3500);
+        }
+
+        // =============================================
+        // 13. INICIALIZAR
+        // =============================================
+        document.getElementById('resetDataBtn').addEventListener('click', resetAllData);
+        listenToGuests();
+
+        console.log('🚀 Dashboard conectado a Firebase.');
+    </script>
+
+</body>
+</html>
