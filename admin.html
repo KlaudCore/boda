@@ -828,30 +828,31 @@
             document.getElementById('declinedCount').textContent = declined;
         }
 
-        // =============================================
-        // 7. RENDERIZAR GRID DEL MENÚ
-        // =============================================
-        function renderMenuGrid() {
-            const grid = document.getElementById('menuGrid');
-            if (menuItems.length === 0) {
-                grid.innerHTML =
-                    `<p style="color:var(--text-secondary); grid-column:1/-1; text-align:center; padding:20px;">No hay opciones de menú. Añade una arriba.</p>`;
-                return;
-            }
+// =============================================
+// RENDERIZAR GRID DEL MENÚ
+// =============================================
+function renderMenuGrid() {
+    const grid = document.getElementById('menuGrid');
+    if (menuItems.length === 0) {
+        grid.innerHTML = `<p style="color:var(--text-secondary); grid-column:1/-1; text-align:center; padding:20px;">No hay opciones de menú. Añade una arriba.</p>`;
+        return;
+    }
 
-            grid.innerHTML = '';
-            menuItems.forEach((item) => {
-                const card = document.createElement('div');
-                card.className = 'menu-card';
-                card.innerHTML = `
-                            <div class="menu-icon"><i class="fas ${item.icono || 'fa-utensils'}"></i></div>
-                            <div class="menu-name">${item.nombre}</div>
-                            <div class="menu-desc">${item.descripcion || ''}</div>
-                            <button class="btn-sm" onclick="deleteMenuItem('${item.id}')"><i class="fas fa-trash-alt"></i> Eliminar</button>
-                        `;
-                grid.appendChild(card);
-            });
-        }
+    grid.innerHTML = '';
+    menuItems.forEach((item) => {
+        const card = document.createElement('div');
+        card.className = 'menu-card';
+        // Mostrar el emoji guardado (o el predeterminado)
+        const emoji = item.icono || '🍽️';
+        card.innerHTML = `
+            <div class="menu-icon" style="font-size:2.8rem; line-height:1.2; margin-bottom:6px;">${emoji}</div>
+            <div class="menu-name">${item.nombre}</div>
+            <div class="menu-desc">${item.descripcion || ''}</div>
+            <button class="btn-sm" onclick="deleteMenuItem('${item.id}')"><i class="fas fa-trash-alt"></i> Eliminar</button>
+        `;
+        grid.appendChild(card);
+    });
+}
 
         // =============================================
         // 8. FUNCIONES CRUD PARA EL MENÚ
