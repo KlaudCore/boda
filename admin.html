@@ -13,7 +13,7 @@
     </script>
 
     <style>
-        /* ========== ESTILOS COMPLETOS (mismos que antes) ========== */
+        /* ========== ESTILOS (igual que antes, solo añado algunos para el modal de menú) ========== */
         * {
             margin: 0;
             padding: 0;
@@ -203,7 +203,7 @@
         table {
             width: 100%;
             border-collapse: collapse;
-            font-size: 0.9rem;
+            font-size: 0.85rem;
             color: var(--text-primary);
         }
         thead {
@@ -212,15 +212,15 @@
         }
         th {
             text-align: left;
-            padding: 16px 20px;
+            padding: 12px 14px;
             font-weight: 600;
             color: var(--text-secondary);
-            font-size: 0.7rem;
+            font-size: 0.65rem;
             text-transform: uppercase;
             letter-spacing: 0.5px;
         }
         td {
-            padding: 14px 20px;
+            padding: 12px 14px;
             border-bottom: 0.5px solid rgba(255, 255, 255, 0.03);
             vertical-align: middle;
         }
@@ -228,9 +228,9 @@
         tr:hover { background: var(--table-hover); }
 
         .badge-status {
-            padding: 4px 14px;
+            padding: 3px 12px;
             border-radius: 60px;
-            font-size: 0.7rem;
+            font-size: 0.65rem;
             font-weight: 600;
             text-transform: uppercase;
             letter-spacing: 0.3px;
@@ -245,25 +245,25 @@
 
         .link-preview {
             background: rgba(255, 255, 255, 0.05);
-            padding: 4px 12px;
+            padding: 4px 10px;
             border-radius: 30px;
-            font-size: 0.7rem;
+            font-size: 0.65rem;
             color: var(--text-secondary);
             font-family: monospace;
             display: inline-block;
-            max-width: 180px;
+            max-width: 150px;
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
         }
         .action-buttons {
             display: flex;
-            gap: 6px;
+            gap: 5px;
             flex-wrap: wrap;
         }
         .btn-sm {
-            padding: 6px 12px;
-            font-size: 0.7rem;
+            padding: 4px 10px;
+            font-size: 0.65rem;
             border-radius: 40px;
             border: none;
             font-weight: 600;
@@ -271,7 +271,7 @@
             transition: 0.2s;
             display: inline-flex;
             align-items: center;
-            gap: 5px;
+            gap: 4px;
             background: rgba(255, 255, 255, 0.05);
             color: var(--text-primary);
             border: 0.5px solid rgba(255, 255, 255, 0.05);
@@ -396,6 +396,44 @@
         }
         .modal-box .btn-group .btn { flex: 1; justify-content: center; }
 
+        /* Estilos para la lista de menú en el modal */
+        .menu-item-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin: 15px 0;
+        }
+        .menu-item-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 10px 16px;
+            border-radius: 16px;
+            border: 0.5px solid rgba(255, 255, 255, 0.05);
+        }
+        .menu-item-row .info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .menu-item-row .info i {
+            font-size: 1.4rem;
+            color: var(--gold);
+        }
+        .menu-item-row .info .name {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+        .menu-item-row .info .desc {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+        }
+        .menu-item-row .actions {
+            display: flex;
+            gap: 8px;
+        }
+
         .toast-dash {
             position: fixed;
             bottom: 30px;
@@ -429,9 +467,9 @@
             .stats { gap: 12px; padding: 10px 18px; border-radius: 40px; }
             .stat-item { font-size: 0.75rem; }
             .table-wrapper { border-radius: 16px; }
-            th, td { padding: 10px 12px; font-size: 0.75rem; }
-            .link-preview { max-width: 100px; font-size: 0.6rem; }
-            .action-buttons .btn-sm { padding: 4px 8px; font-size: 0.6rem; }
+            th, td { padding: 8px 10px; font-size: 0.7rem; }
+            .link-preview { max-width: 80px; font-size: 0.55rem; }
+            .action-buttons .btn-sm { padding: 3px 6px; font-size: 0.55rem; }
             .footer-actions { flex-direction: column; align-items: stretch; }
             .modal-box { padding: 24px 20px; }
             .btn { padding: 8px 16px; font-size: 0.8rem; }
@@ -456,7 +494,7 @@
             <div class="stat-item"><span class="dot gray"></span> Total: <span class="num" id="totalCount">0</span></div>
             <div class="stat-item"><span class="dot blue"></span> Enviados: <span class="num" id="sentCount">0</span></div>
             <div class="stat-item"><span class="dot green"></span> Confirmados: <span class="num" id="confirmedCount">0</span></div>
-            <div class="stat-item"><span class="dot yellow"></span> Pensando: <span class="num" id="thinkingCount">0</span></div>
+            <div class="stat-item"><span class="dot yellow"></span> Pendientes: <span class="num" id="pendingCount">0</span></div>
             <div class="stat-item"><span class="dot red"></span> Rechazados: <span class="num" id="declinedCount">0</span></div>
         </div>
 
@@ -468,13 +506,16 @@
                         <th>Nombre</th>
                         <th>Mesa</th>
                         <th>Teléfono</th>
-                        <th>Enlace Único</th>
+                        <th>Enlace</th>
                         <th>Estado</th>
+                        <th>Acomp.</th>
+                        <th>Menú</th>
+                        <th>Alergias</th>
                         <th>Acciones</th>
                     </tr>
                 </thead>
                 <tbody id="guestTableBody">
-                    <tr><td colspan="7" style="text-align:center; padding:40px; color:var(--text-secondary);"><i class="fas fa-spinner fa-spin"></i> Cargando invitados...</td></tr>
+                    <tr><td colspan="10" style="text-align:center; padding:40px; color:var(--text-secondary);"><i class="fas fa-spinner fa-spin"></i> Cargando invitados...</td></tr>
                 </tbody>
             </table>
         </div>
@@ -482,8 +523,9 @@
         <div class="footer-actions">
             <div class="left">
                 <button class="btn btn-primary" id="openAddModal"><i class="fas fa-plus-circle"></i> Añadir invitado</button>
-                <button class="btn btn-outline" id="downloadTemplateBtn"><i class="fas fa-download"></i> Descargar plantilla CSV</button>
-                <button class="btn btn-outline" id="resetDataBtn"><i class="fas fa-undo-alt"></i> Reiniciar datos (Ejemplo)</button>
+                <button class="btn btn-outline" id="openMenuModal"><i class="fas fa-utensils"></i> Gestionar menú</button>
+                <button class="btn btn-outline" id="downloadTemplateBtn"><i class="fas fa-download"></i> Plantilla CSV</button>
+                <button class="btn btn-outline" id="resetDataBtn"><i class="fas fa-undo-alt"></i> Reiniciar (ejemplo)</button>
             </div>
             <div class="right">
                 <i class="fas fa-sync-alt fa-fw"></i> Sincronización en tiempo real
@@ -492,7 +534,7 @@
 
     </div>
 
-    <!-- MODAL -->
+    <!-- MODAL AÑADIR INVITADO -->
     <div class="modal-overlay" id="addModal">
         <div class="modal-box">
             <h2><i class="fas fa-user-plus"></i> Añadir invitado</h2>
@@ -538,6 +580,46 @@
         </div>
     </div>
 
+    <!-- MODAL GESTIONAR MENÚ -->
+    <div class="modal-overlay" id="menuModal">
+        <div class="modal-box">
+            <h2><i class="fas fa-utensils"></i> Gestionar menú</h2>
+            <p class="sub">Añade, edita o elimina las opciones del menú que verán los invitados.</p>
+
+            <!-- Formulario para añadir nueva opción -->
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px; margin-bottom:20px;">
+                <div class="form-group" style="margin-bottom:0;">
+                    <label>Nombre</label>
+                    <input type="text" id="newMenuName" placeholder="Ej: Carne" />
+                </div>
+                <div class="form-group" style="margin-bottom:0;">
+                    <label>Descripción (opcional)</label>
+                    <input type="text" id="newMenuDesc" placeholder="Ej: Res" />
+                </div>
+                <div class="form-group" style="margin-bottom:0; grid-column: span 2;">
+                    <label>Icono (clase Font Awesome, ej: fa-drumstick-bite)</label>
+                    <input type="text" id="newMenuIcon" placeholder="fa-drumstick-bite" />
+                </div>
+            </div>
+            <button class="btn btn-primary" id="addMenuBtn" style="width:100%; justify-content:center; margin-bottom:20px;">
+                <i class="fas fa-plus"></i> Agregar opción
+            </button>
+
+            <hr style="border:0.5px solid rgba(255,255,255,0.05); margin:20px 0;" />
+
+            <!-- Lista de opciones del menú -->
+            <div id="menuListContainer">
+                <div class="menu-item-list" id="menuItemList">
+                    <p style="color:var(--text-secondary); text-align:center; padding:20px;">Cargando opciones...</p>
+                </div>
+            </div>
+
+            <div class="btn-group">
+                <button class="btn btn-outline" id="closeMenuModalBtn">Cerrar</button>
+            </div>
+        </div>
+    </div>
+
     <!-- TOAST -->
     <div id="toastDash" class="toast-dash">
         <i class="fas fa-check-circle"></i>
@@ -550,13 +632,13 @@
         // =============================================
         // 🔥 REEMPLAZA ESTOS DATOS CON TU CONFIGURACIÓN DE FIREBASE 🔥
         const firebaseConfig = {
-  apiKey: "AIzaSyCOuNbjlGbFmO_v1XXlOrv28TcNNrzhqJ0",
-  authDomain: "bodas-65995.firebaseapp.com",
-  projectId: "bodas-65995",
-  storageBucket: "bodas-65995.firebasestorage.app",
-  messagingSenderId: "697327379541",
-  appId: "1:697327379541:web:f175f278ae4e2815ce60dc"
-};
+            apiKey: "TU_API_KEY",
+            authDomain: "TU_PROYECTO.firebaseapp.com",
+            projectId: "TU_PROYECTO",
+            storageBucket: "TU_PROYECTO.appspot.com",
+            messagingSenderId: "TU_SENDER_ID",
+            appId: "TU_APP_ID"
+        };
 
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
@@ -566,13 +648,14 @@
         // =============================================
         const BASE_URL = 'https://klaudcore.github.io/boda/';
         let guests = [];
+        let menuItems = [];
 
         // =============================================
-        // 3. ESCUCHAR CAMBIOS EN FIRESTORE (TIEMPO REAL)
+        // 3. ESCUCHAR CAMBIOS EN FIRESTORE (INVITADOS)
         // =============================================
         function listenToGuests() {
             db.collection('invitados')
-                .orderBy('name') // Ordenar alfabéticamente
+                .orderBy('name')
                 .onSnapshot((snapshot) => {
                     guests = [];
                     snapshot.forEach((doc) => {
@@ -592,7 +675,28 @@
         }
 
         // =============================================
-        // 4. GENERAR CÓDIGO ÚNICO
+        // 4. ESCUCHAR CAMBIOS EN FIRESTORE (MENÚ)
+        // =============================================
+        function listenToMenu() {
+            db.collection('menu')
+                .orderBy('nombre')
+                .onSnapshot((snapshot) => {
+                    menuItems = [];
+                    snapshot.forEach((doc) => {
+                        const data = doc.data();
+                        menuItems.push({
+                            id: doc.id,
+                            ...data
+                        });
+                    });
+                    renderMenuList();
+                }, (error) => {
+                    console.error('Error al cargar el menú:', error);
+                });
+        }
+
+        // =============================================
+        // 5. GENERAR CÓDIGO ÚNICO
         // =============================================
         function generateCode() {
             const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
@@ -604,20 +708,19 @@
         }
 
         // =============================================
-        // 5. RENDERIZAR TABLA Y ESTADÍSTICAS
+        // 6. RENDERIZAR TABLA DE INVITADOS
         // =============================================
         function renderTable() {
             const tbody = document.getElementById('guestTableBody');
             tbody.innerHTML = '';
             if (guests.length === 0) {
                 tbody.innerHTML =
-                    `<tr><td colspan="7" style="text-align:center; padding:40px; color:var(--text-secondary);">No hay invitados. Añade algunos desde el botón "Añadir invitado".</td></tr>`;
+                    `<tr><td colspan="10" style="text-align:center; padding:40px; color:var(--text-secondary);">No hay invitados. Añade algunos desde el botón "Añadir invitado".</td></tr>`;
                 updateStats();
                 return;
             }
 
             guests.forEach((guest, index) => {
-                // Enlace único con dominio fijo
                 const link = `${BASE_URL}?codigo=${guest.code}`;
 
                 let badgeClass = 'badge-status';
@@ -631,10 +734,6 @@
                         badgeClass += ' badge-confirmed';
                         statusText = '✅ Confirmado';
                         break;
-                    case 'pensando':
-                        badgeClass += ' badge-thinking';
-                        statusText = '🤔 Lo está pensando';
-                        break;
                     case 'rechazado':
                         badgeClass += ' badge-declined';
                         statusText = '❌ No asistirá';
@@ -644,18 +743,28 @@
                         statusText = '⏳ Pendiente';
                 }
 
+                // Buscar el nombre del menú seleccionado
+                let menuName = guest.menu || '--';
+                if (menuName !== '--') {
+                    const menuItem = menuItems.find(m => m.id === guest.menu || m.nombre === guest.menu);
+                    if (menuItem) menuName = menuItem.nombre;
+                }
+
                 const row = document.createElement('tr');
                 row.innerHTML = `
                             <td>${index + 1}</td>
                             <td><strong>${guest.name}</strong></td>
                             <td>Mesa ${guest.table}</td>
-                            <td style="font-size:0.8rem; color:var(--text-secondary);">${guest.phone}</td>
+                            <td style="font-size:0.75rem; color:var(--text-secondary);">${guest.phone}</td>
                             <td><span class="link-preview" title="${link}">${link}</span></td>
                             <td><span class="${badgeClass}">${statusText}</span></td>
+                            <td>${guest.acompanantes ?? '--'}</td>
+                            <td style="font-size:0.75rem;">${menuName}</td>
+                            <td style="font-size:0.7rem; max-width:100px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;" title="${guest.alergias || '--'}">${guest.alergias || '--'}</td>
                             <td>
                                 <div class="action-buttons">
-                                    <button class="btn-sm copy-sm" onclick="copyLink('${link}', '${guest.name}')"><i class="fas fa-copy"></i> Link</button>
-                                    <button class="btn-sm whatsapp-sm" onclick="sendWhatsApp('${guest.phone}', '${guest.name}', '${link}', '${guest.id}')"><i class="fab fa-whatsapp"></i> WhatsApp</button>
+                                    <button class="btn-sm copy-sm" onclick="copyLink('${link}', '${guest.name}')"><i class="fas fa-copy"></i></button>
+                                    <button class="btn-sm whatsapp-sm" onclick="sendWhatsApp('${guest.phone}', '${guest.name}', '${link}', '${guest.id}')"><i class="fab fa-whatsapp"></i></button>
                                     <button class="btn-sm reset-sm" onclick="resetGuestStatus('${guest.id}')"><i class="fas fa-undo"></i></button>
                                     <button class="btn-sm delete-sm" onclick="deleteGuest('${guest.id}')"><i class="fas fa-trash-alt"></i></button>
                                 </div>
@@ -666,23 +775,74 @@
             updateStats();
         }
 
-        function updateStats() {
-            const total = guests.length;
-            const sent = guests.filter(g => g.status === 'sent').length;
-            const confirmed = guests.filter(g => g.status === 'confirmado').length;
-            const thinking = guests.filter(g => g.status === 'pensando').length;
-            const declined = guests.filter(g => g.status === 'rechazado').length;
-            document.getElementById('totalCount').textContent = total;
-            document.getElementById('sentCount').textContent = sent;
-            document.getElementById('confirmedCount').textContent = confirmed;
-            document.getElementById('thinkingCount').textContent = thinking;
-            document.getElementById('declinedCount').textContent = declined;
+        // =============================================
+        // 7. RENDERIZAR LISTA DE MENÚ EN EL MODAL
+        // =============================================
+        function renderMenuList() {
+            const container = document.getElementById('menuItemList');
+            if (menuItems.length === 0) {
+                container.innerHTML = `<p style="color:var(--text-secondary); text-align:center; padding:20px;">No hay opciones de menú. ¡Agrega una!</p>`;
+                return;
+            }
+
+            container.innerHTML = '';
+            menuItems.forEach((item) => {
+                const div = document.createElement('div');
+                div.className = 'menu-item-row';
+                div.innerHTML = `
+                            <div class="info">
+                                <i class="fas ${item.icono || 'fa-utensils'}"></i>
+                                <div>
+                                    <div class="name">${item.nombre}</div>
+                                    <div class="desc">${item.descripcion || ''}</div>
+                                </div>
+                            </div>
+                            <div class="actions">
+                                <button class="btn-sm copy-sm" onclick="editMenuItem('${item.id}')"><i class="fas fa-edit"></i></button>
+                                <button class="btn-sm delete-sm" onclick="deleteMenuItem('${item.id}')"><i class="fas fa-trash-alt"></i></button>
+                            </div>
+                        `;
+                container.appendChild(div);
+            });
         }
 
         // =============================================
-        // 6. FUNCIONES CRUD CON FIRESTORE
+        // 8. CRUD MENÚ
         // =============================================
-        // Añadir invitado
+        function addMenuItem(nombre, descripcion, icono) {
+            return db.collection('menu').add({
+                nombre,
+                descripcion: descripcion || '',
+                icono: icono || 'fa-utensils'
+            });
+        }
+
+        function deleteMenuItem(id) {
+            if (!confirm('¿Eliminar esta opción del menú?')) return;
+            db.collection('menu').doc(id).delete()
+                .then(() => showToast('🗑️ Opción eliminada.'))
+                .catch(() => showToast('⚠️ Error al eliminar.'));
+        }
+
+        function editMenuItem(id) {
+            const item = menuItems.find(m => m.id === id);
+            if (!item) return;
+            const newName = prompt('Nuevo nombre:', item.nombre);
+            if (newName === null) return;
+            const newDesc = prompt('Nueva descripción:', item.descripcion || '');
+            const newIcon = prompt('Nuevo icono (clase Font Awesome):', item.icono || 'fa-utensils');
+            db.collection('menu').doc(id).update({
+                    nombre: newName,
+                    descripcion: newDesc || '',
+                    icono: newIcon || 'fa-utensils'
+                })
+                .then(() => showToast('✅ Opción actualizada.'))
+                .catch(() => showToast('⚠️ Error al actualizar.'));
+        }
+
+        // =============================================
+        // 9. FUNCIONES CRUD INVITADOS
+        // =============================================
         function addGuestToFirestore(guestData) {
             return db.collection('invitados').add({
                 ...guestData,
@@ -691,7 +851,6 @@
             });
         }
 
-        // Actualizar estado
         function updateGuestStatus(id, newStatus) {
             return db.collection('invitados').doc(id).update({
                 status: newStatus,
@@ -699,13 +858,12 @@
             });
         }
 
-        // Eliminar invitado
         function deleteGuestFromFirestore(id) {
             return db.collection('invitados').doc(id).delete();
         }
 
         // =============================================
-        // 7. ACCIONES DE LA UI
+        // 10. ACCIONES DE LA UI
         // =============================================
         function copyLink(link, name) {
             navigator.clipboard.writeText(link).then(() => {
@@ -739,17 +897,11 @@
             const url = `https://wa.me/${phone}?text=${mensajeCodificado}`;
             window.open(url, '_blank');
 
-            // Marcar como enviado en Firestore
             const guest = guests.find(g => g.id === id);
             if (guest && (guest.status === 'pending' || guest.status === 'pensando')) {
                 updateGuestStatus(id, 'sent')
-                    .then(() => {
-                        showToast(`📨 Mensaje enviado a ${name}. Estado: Enviado`);
-                    })
-                    .catch((error) => {
-                        console.error('Error al actualizar estado:', error);
-                        showToast('⚠️ Error al actualizar el estado.');
-                    });
+                    .then(() => showToast(`📨 Mensaje enviado a ${name}. Estado: Enviado`))
+                    .catch(() => showToast('⚠️ Error al actualizar el estado.'));
             } else if (guest) {
                 showToast(`💬 Chat abierto con ${name} (${guest.status})`);
             } else {
@@ -762,13 +914,8 @@
             if (!guest) return;
             if (confirm(`¿Reiniciar estado de ${guest.name} a "Pendiente"?`)) {
                 updateGuestStatus(id, 'pending')
-                    .then(() => {
-                        showToast(`↩️ ${guest.name} reiniciado a Pendiente`);
-                    })
-                    .catch((error) => {
-                        console.error('Error al reiniciar:', error);
-                        showToast('⚠️ Error al reiniciar el estado.');
-                    });
+                    .then(() => showToast(`↩️ ${guest.name} reiniciado a Pendiente`))
+                    .catch(() => showToast('⚠️ Error al reiniciar el estado.'));
             }
         }
 
@@ -777,31 +924,24 @@
             if (!guest) return;
             if (confirm(`⚠️ ¿Estás seguro de eliminar a ${guest.name}?`)) {
                 deleteGuestFromFirestore(id)
-                    .then(() => {
-                        showToast(`🗑️ ${guest.name} eliminado.`);
-                    })
-                    .catch((error) => {
-                        console.error('Error al eliminar:', error);
-                        showToast('⚠️ Error al eliminar el invitado.');
-                    });
+                    .then(() => showToast(`🗑️ ${guest.name} eliminado.`))
+                    .catch(() => showToast('⚠️ Error al eliminar el invitado.'));
             }
         }
 
         // =============================================
-        // 8. REINICIAR DATOS (SOLO EJEMPLO)
+        // 11. REINICIAR DATOS (EJEMPLO)
         // =============================================
         function resetAllData() {
             if (!confirm('⚠️ ¿Seguro que quieres reiniciar los datos de ejemplo? Esto eliminará todos los invitados actuales.'))
                 return;
 
-            // Primero eliminamos todos los documentos actuales
             const batch = db.batch();
             guests.forEach(guest => {
                 const docRef = db.collection('invitados').doc(guest.id);
                 batch.delete(docRef);
             });
             batch.commit().then(() => {
-                // Luego añadimos los de ejemplo
                 const sampleGuests = [
                     { code: 'ABX92', name: 'Carlos Pérez', table: 12, phone: '5215512345678',
                         email: 'carlos@mail.com', maxGuests: 2, status: 'pending' },
@@ -827,13 +967,11 @@
                 Promise.all(promises)
                     .then(() => showToast('🔄 Datos de ejemplo cargados.'))
                     .catch(() => showToast('⚠️ Error al cargar datos de ejemplo.'));
-            }).catch(() => {
-                showToast('⚠️ Error al reiniciar datos.');
-            });
+            }).catch(() => showToast('⚠️ Error al reiniciar datos.'));
         }
 
         // =============================================
-        // 9. BOTÓN DE DESCARGA DE PLANTILLA CSV (NUEVO)
+        // 12. BOTÓN DE DESCARGA DE PLANTILLA CSV
         // =============================================
         function downloadTemplate() {
             const content = 'Nombre,Email,Teléfono,Mesa Asignada,Máximo Acompañantes\nJuan Pérez,juan@mail.com,5215512345678,1,2\nMaría Gómez,maria@mail.com,5215587654321,2,1\nCarlos Ruiz,carlos@mail.com,5215533221144,3,0';
@@ -848,18 +986,16 @@
             URL.revokeObjectURL(url);
             showToast('📥 Plantilla descargada.');
         }
-
         document.getElementById('downloadTemplateBtn').addEventListener('click', downloadTemplate);
 
         // =============================================
-        // 10. MODAL DE AÑADIR / IMPORTAR
+        // 13. MODAL AÑADIR INVITADO
         // =============================================
-        const modal = document.getElementById('addModal');
-        document.getElementById('openAddModal').addEventListener('click', () => modal.classList.add('active'));
-        document.getElementById('closeModalBtn').addEventListener('click', () => modal.classList.remove('active'));
-        modal.addEventListener('click', (e) => { if (e.target === modal) modal.classList.remove('active'); });
+        const addModal = document.getElementById('addModal');
+        document.getElementById('openAddModal').addEventListener('click', () => addModal.classList.add('active'));
+        document.getElementById('closeModalBtn').addEventListener('click', () => addModal.classList.remove('active'));
+        addModal.addEventListener('click', (e) => { if (e.target === addModal) addModal.classList.remove('active'); });
 
-        // Añadir manual
         document.getElementById('addManualBtn').addEventListener('click', () => {
             const name = document.getElementById('newName').value.trim();
             const phone = document.getElementById('newPhone').value.trim();
@@ -881,7 +1017,7 @@
 
             addGuestToFirestore(newGuest)
                 .then(() => {
-                    modal.classList.remove('active');
+                    addModal.classList.remove('active');
                     showToast(`✅ ${name} añadido correctamente.`);
                     document.getElementById('newName').value = '';
                     document.getElementById('newPhone').value = '';
@@ -889,10 +1025,7 @@
                     document.getElementById('newTable').value = '';
                     document.getElementById('newMaxGuests').value = '';
                 })
-                .catch((error) => {
-                    console.error('Error al añadir:', error);
-                    showToast('⚠️ Error al añadir el invitado.');
-                });
+                .catch(() => showToast('⚠️ Error al añadir el invitado.'));
         });
 
         // Importar CSV
@@ -933,7 +1066,7 @@
                 const promises = imported.map(g => db.collection('invitados').add(g));
                 Promise.all(promises)
                     .then(() => {
-                        modal.classList.remove('active');
+                        addModal.classList.remove('active');
                         showToast(`✅ ${imported.length} invitados importados.`);
                         fileInput.value = '';
                     })
@@ -943,7 +1076,32 @@
         });
 
         // =============================================
-        // 11. TEMA OSCURO / CLARO
+        // 14. MODAL GESTIONAR MENÚ
+        // =============================================
+        const menuModal = document.getElementById('menuModal');
+        document.getElementById('openMenuModal').addEventListener('click', () => menuModal.classList.add('active'));
+        document.getElementById('closeMenuModalBtn').addEventListener('click', () => menuModal.classList.remove('active'));
+        menuModal.addEventListener('click', (e) => { if (e.target === menuModal) menuModal.classList.remove('active'); });
+
+        document.getElementById('addMenuBtn').addEventListener('click', () => {
+            const nombre = document.getElementById('newMenuName').value.trim();
+            const descripcion = document.getElementById('newMenuDesc').value.trim();
+            const icono = document.getElementById('newMenuIcon').value.trim() || 'fa-utensils';
+
+            if (!nombre) { showToast('⚠️ El nombre es obligatorio.'); return; }
+
+            addMenuItem(nombre, descripcion, icono)
+                .then(() => {
+                    showToast(`✅ Opción "${nombre}" añadida.`);
+                    document.getElementById('newMenuName').value = '';
+                    document.getElementById('newMenuDesc').value = '';
+                    document.getElementById('newMenuIcon').value = '';
+                })
+                .catch(() => showToast('⚠️ Error al añadir opción.'));
+        });
+
+        // =============================================
+        // 15. TEMA OSCURO / CLARO
         // =============================================
         const themeToggle = document.getElementById('themeToggle');
         const iconTheme = themeToggle.querySelector('i');
@@ -965,7 +1123,7 @@
         });
 
         // =============================================
-        // 12. TOAST
+        // 16. TOAST
         // =============================================
         function showToast(message) {
             const toast = document.getElementById('toastDash');
@@ -976,12 +1134,30 @@
         }
 
         // =============================================
-        // 13. INICIALIZAR
+        // 17. ESTADÍSTICAS
+        // =============================================
+        function updateStats() {
+            const total = guests.length;
+            const sent = guests.filter(g => g.status === 'sent').length;
+            const confirmed = guests.filter(g => g.status === 'confirmado').length;
+            const pending = guests.filter(g => g.status === 'pending' || g.status === 'pensando').length;
+            const declined = guests.filter(g => g.status === 'rechazado').length;
+
+            document.getElementById('totalCount').textContent = total;
+            document.getElementById('sentCount').textContent = sent;
+            document.getElementById('confirmedCount').textContent = confirmed;
+            document.getElementById('pendingCount').textContent = pending;
+            document.getElementById('declinedCount').textContent = declined;
+        }
+
+        // =============================================
+        // 18. INICIALIZAR
         // =============================================
         document.getElementById('resetDataBtn').addEventListener('click', resetAllData);
         listenToGuests();
+        listenToMenu();
 
-        console.log('🚀 Dashboard conectado a Firebase.');
+        console.log('🚀 Dashboard conectado a Firebase con gestión de menú.');
     </script>
 
 </body>
