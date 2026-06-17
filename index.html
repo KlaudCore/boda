@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-    <title>Invitación · Alan & Becca</title>
+    <title>Invitación · Rebeca & Juan</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js">
     </script>
@@ -15,7 +15,7 @@
     </script>
 
     <style>
-        /* ========== MISMOS ESTILOS QUE ANTES ========== */
+        /* ========== ESTILOS COMPLETOS ========== */
         * {
             margin: 0;
             padding: 0;
@@ -577,7 +577,7 @@
 
     <div id="app-container">
 
-        <!-- SPLASH -->
+        <!-- ========== SPLASH ========== -->
         <div id="splash">
             <div class="ring-loader"></div>
             <h1>Rebeca <span>&</span> Juan</h1>
@@ -585,7 +585,7 @@
             <button class="btn-splash" id="enterApp"><i class="fas fa-chevron-right" style="margin-right:8px;"></i> Abrir invitación</button>
         </div>
 
-        <!-- TOAST -->
+        <!-- ========== TOAST ========== -->
         <div id="toast" class="toast">
             <i class="fas fa-check-circle"></i>
             <div class="toast-text">
@@ -595,7 +595,7 @@
             <button class="toast-close" id="closeToast"><i class="fas fa-times"></i></button>
         </div>
 
-        <!-- APP -->
+        <!-- ========== APP ========== -->
         <div id="main-app">
 
             <header class="app-header">
@@ -658,7 +658,8 @@
                             <div class="input-group">
                                 <label><i class="fas fa-utensils"></i> Elige tu menú</label>
                                 <div class="menu-options" id="menuOptions">
-                                    <!-- Las opciones se renderizan dinámicamente desde Firebase -->
+                                    <!-- Las opciones se cargarán desde Firebase -->
+                                    <p style="color:var(--text-secondary); grid-column:1/-1; text-align:center; padding:10px;">Cargando opciones...</p>
                                 </div>
                             </div>
                             <div class="input-group">
@@ -715,12 +716,12 @@
         // =============================================
         // 🔥 REEMPLAZA ESTOS DATOS CON TU CONFIGURACIÓN DE FIREBASE 🔥
         const firebaseConfig = {
-            apiKey: "AIzaSyCOuNbjlGbFmO_v1XXlOrv28TcNNrzhqJ0",
-            authDomain: "bodas-65995.firebaseapp.com",
-            projectId: "bodas-65995",
-            storageBucket: "bodas-65995.firebasestorage.app",
-            messagingSenderId: "697327379541",
-            appId: "1:697327379541:web:f175f278ae4e2815ce60dc"
+            apiKey: "TU_API_KEY",
+            authDomain: "TU_PROYECTO.firebaseapp.com",
+            projectId: "TU_PROYECTO",
+            storageBucket: "TU_PROYECTO.appspot.com",
+            messagingSenderId: "TU_SENDER_ID",
+            appId: "TU_APP_ID"
         };
 
         firebase.initializeApp(firebaseConfig);
@@ -734,7 +735,7 @@
         let currentGuests = 0;
         let maxAcomp = 0;
         let menuItems = [];
-        let selectedMenuId = null;
+        let isLoading = false;
 
         // =============================================
         // 3. LEER CÓDIGO DE LA URL
@@ -745,12 +746,48 @@
         }
 
         // =============================================
-        // 4. ESCUCHAR CAMBIOS EN EL MENÚ (FIRESTORE)
+        // 4. CARGAR DATOS DEL INVITADO (NO RENDERIZA)
         // =============================================
-        function listenToMenu() {
+        function loadGuestData(callback) {
+            const code = getCodeFromURL();
+            if (!code) {
+                if (callback) callback(null);
+                return;
+            }
+
+            isLoading = true;
+            db.collection('invitados')
+                .where('code', '==', code)
+                .get()
+                .then((querySnapshot) => {
+                    isLoading = false;
+                    if (querySnapshot.empty) {
+                        if (callback) callback(null);
+                        return;
+                    }
+                    const doc = querySnapshot.docs[0];
+                    const data = doc.data();
+                    currentGuest = {
+                        id: doc.id,
+                        ...data
+                    };
+                    if (callback) callback(currentGuest);
+                })
+                .catch((error) => {
+                    isLoading = false;
+                    console.error('Error al cargar datos:', error);
+                    if (callback) callback(null);
+                });
+        }
+
+        // =============================================
+        // 5. CARGAR MENÚ DESDE FIRESTORE
+        // =============================================
+        function loadMenu() {
             db.collection('menu')
                 .orderBy('nombre')
-                .onSnapshot((snapshot) => {
+                .get()
+                .then((snapshot) => {
                     menuItems = [];
                     snapshot.forEach((doc) => {
                         const data = doc.data();
@@ -760,101 +797,73 @@
                         });
                     });
                     renderMenuOptions();
-                }, (error) => {
-                    console.error('Error al cargar el menú:', error);
+                })
+                .catch((error) => {
+                    console.error('Error al cargar menú:', error);
+                    document.getElementById('menuOptions').innerHTML =
+                        `<p style="color:var(--text-secondary); grid-column:1/-1; text-align:center; padding:10px;">Error al cargar el menú.</p>`;
                 });
         }
 
         // =============================================
-        // 5. RENDERIZAR OPCIONES DE MENÚ DINÁMICAMENTE
+        // 6. RENDERIZAR OPCIONES DE MENÚ
         // =============================================
         function renderMenuOptions() {
             const container = document.getElementById('menuOptions');
-            container.innerHTML = '';
-
             if (menuItems.length === 0) {
-                container.innerHTML = `<p style="color:var(--text-secondary); font-size:0.8rem; text-align:center; padding:10px;">No hay opciones de menú disponibles.</p>`;
+                container.innerHTML =
+                    `<p style="color:var(--text-secondary); grid-column:1/-1; text-align:center; padding:10px;">No hay opciones de menú disponibles.</p>`;
                 return;
             }
+
+            container.innerHTML = '';
+            // Intentar seleccionar el menú que el invitado ya tenga guardado
+            const selectedMenu = currentGuest?.menu || null;
 
             menuItems.forEach((item) => {
                 const div = document.createElement('div');
                 div.className = 'menu-item';
-                if (selectedMenuId === item.id) {
+                if (selectedMenu && item.nombre === selectedMenu) {
                     div.classList.add('selected');
                 }
-                div.dataset.menuId = item.id;
+                const icono = item.icono || 'fa-utensils';
                 div.innerHTML = `
-                            <i class="fas ${item.icono || 'fa-utensils'}"></i>
+                            <i class="fas ${icono}"></i>
                             ${item.nombre}
-                            <small>${item.descripcion || ''}</small>
+                            ${item.descripcion ? `<small>${item.descripcion}</small>` : ''}
                         `;
+                div.dataset.menu = item.nombre;
                 div.addEventListener('click', function() {
                     document.querySelectorAll('.menu-options .menu-item').forEach(m => m.classList.remove('selected'));
                     this.classList.add('selected');
-                    selectedMenuId = this.dataset.menuId;
                 });
                 container.appendChild(div);
             });
-
-            // Si hay un menú guardado previamente, seleccionarlo
-            if (currentGuest && currentGuest.menu) {
-                const menuItem = menuItems.find(m => m.id === currentGuest.menu);
-                if (menuItem) {
-                    selectedMenuId = menuItem.id;
-                    const items = container.querySelectorAll('.menu-item');
-                    items.forEach(el => {
-                        if (el.dataset.menuId === menuItem.id) {
-                            el.classList.add('selected');
-                        }
-                    });
-                }
-            }
         }
 
         // =============================================
-        // 6. CARGAR DATOS DEL INVITADO
+        // 7. RENDERIZAR INVITACIÓN (CUANDO EL USUARIO HACE CLIC)
         // =============================================
-        function loadGuestData() {
-            const code = getCodeFromURL();
-            if (!code) {
-                showError('No se encontró un código de invitación válido.');
+        function renderInvitation(guest) {
+            if (!guest) {
+                // Mostrar error en lugar de la app
+                document.getElementById('main-app').innerHTML = `
+                            <div style="display:flex; flex-direction:column; justify-content:center; align-items:center; height:100%; color:white; text-align:center; padding:40px;">
+                                <i class="fas fa-exclamation-triangle" style="font-size:3rem; color:var(--gold); margin-bottom:20px;"></i>
+                                <h2>Invitación no válida</h2>
+                                <p style="color:rgba(255,255,255,0.5); margin-top:10px;">El código no es válido o ha expirado.</p>
+                                <p style="color:rgba(255,255,255,0.3); font-size:0.8rem; margin-top:20px;">Código: ${getCodeFromURL() || 'Ninguno'}</p>
+                            </div>
+                        `;
+                document.getElementById('splash').classList.add('hide');
+                document.getElementById('main-app').classList.add('active');
                 return;
             }
 
-            db.collection('invitados')
-                .where('code', '==', code)
-                .get()
-                .then((querySnapshot) => {
-                    if (querySnapshot.empty) {
-                        showError('Este código de invitación no es válido o ha expirado.');
-                        return;
-                    }
-                    const doc = querySnapshot.docs[0];
-                    const data = doc.data();
-                    currentGuest = {
-                        id: doc.id,
-                        ...data
-                    };
-                    // Si tiene menú guardado, seleccionarlo
-                    if (currentGuest.menu) {
-                        selectedMenuId = currentGuest.menu;
-                    }
-                    renderInvitation(currentGuest);
-                })
-                .catch((error) => {
-                    console.error('Error al cargar datos:', error);
-                    showError('Error al conectar con el servidor. Intenta de nuevo.');
-                });
-        }
-
-        // =============================================
-        // 7. RENDERIZAR INVITACIÓN
-        // =============================================
-        function renderInvitation(guest) {
             currentGuests = guest.maxGuests || 0;
             maxAcomp = guest.maxGuests || 0;
 
+            // Actualizar UI
             document.getElementById('guestName').innerHTML = `${guest.name} <i class="fas fa-crown"></i>`;
             document.getElementById('badgeMesa').textContent = `Mesa ${guest.table}`;
             document.getElementById('homeMesa').textContent = guest.table;
@@ -863,11 +872,19 @@
             document.getElementById('qrMesa').textContent = guest.table;
             document.getElementById('maxAcompLabel').textContent = guest.maxGuests;
 
-            const savedGuests = guest.acompanantes ?? guest.maxGuests;
+            // Si ya tiene acompañantes guardados, mostrarlos
+            const savedGuests = guest.acompanantes || guest.maxGuests;
             currentGuests = savedGuests;
             document.getElementById('guestCount').textContent = currentGuests;
 
             generateQR(guest.code, guest.name);
+
+            // Cargar menú (si no está cargado)
+            if (menuItems.length === 0) {
+                loadMenu();
+            } else {
+                renderMenuOptions();
+            }
 
             const confirmBtn = document.getElementById('confirmRsvp');
             const rsvpYes = document.getElementById('rsvpYes');
@@ -897,11 +914,11 @@
                 confirmBtn.disabled = false;
             }
 
-            // Renderizar menú (ya se llama desde listenToMenu)
-            renderMenuOptions();
-
+            // Ocultar splash y mostrar app
             document.getElementById('splash').classList.add('hide');
             document.getElementById('main-app').classList.add('active');
+
+            // Iniciar countdown
             updateCountdown();
             setInterval(updateCountdown, 1000);
         }
@@ -909,19 +926,6 @@
         // =============================================
         // 8. FUNCIONES AUXILIARES
         // =============================================
-        function showError(message) {
-            document.getElementById('main-app').innerHTML = `
-                        <div style="display:flex; flex-direction:column; justify-content:center; align-items:center; height:100%; color:white; text-align:center; padding:40px;">
-                            <i class="fas fa-exclamation-triangle" style="font-size:3rem; color:var(--gold); margin-bottom:20px;"></i>
-                            <h2>Invitación no válida</h2>
-                            <p style="color:rgba(255,255,255,0.5); margin-top:10px;">${message}</p>
-                            <p style="color:rgba(255,255,255,0.3); font-size:0.8rem; margin-top:20px;">Código: ${getCodeFromURL() || 'Ninguno'}</p>
-                        </div>
-                    `;
-            document.getElementById('splash').classList.add('hide');
-            document.getElementById('main-app').classList.add('active');
-        }
-
         function updateCountdown() {
             const now = new Date().getTime();
             const diff = targetDate - now;
@@ -1018,18 +1022,15 @@
 
             const isAttending = rsvpYes.className.includes('active-yes');
             const newStatus = isAttending ? 'confirmado' : 'rechazado';
+            const menuSelected = document.querySelector('.menu-options .menu-item.selected')?.dataset.menu ||
+                'No definido';
             const alergias = document.getElementById('alergiasText').value || 'Ninguna';
             const acompanantes = currentGuests;
 
-            // Obtener el ID del menú seleccionado
-            const selectedItem = document.querySelector('.menu-options .menu-item.selected');
-            const menuId = selectedItem ? selectedItem.dataset.menuId : null;
-
-            // Actualizar en Firestore
             const docRef = db.collection('invitados').doc(currentGuest.id);
             docRef.update({
                     status: newStatus,
-                    menu: menuId,
+                    menu: menuSelected,
                     alergias: alergias,
                     acompanantes: acompanantes,
                     updatedAt: firebase.firestore.FieldValue.serverTimestamp()
@@ -1038,8 +1039,7 @@
                     if (newStatus === 'confirmado') {
                         this.innerHTML = '<i class="fas fa-check-circle"></i> Confirmado ✅';
                         this.className = 'btn-confirm confirmed';
-                        const menuName = menuItems.find(m => m.id === menuId)?.nombre || 'No definido';
-                        showToast('✅ ¡Asistencia confirmada!', `Menú: ${menuName}`);
+                        showToast('✅ ¡Asistencia confirmada!', `Menú: ${menuSelected}`);
                     } else {
                         this.innerHTML = '<i class="fas fa-times-circle"></i> No asistirás ❌';
                         this.className = 'btn-confirm rejected';
@@ -1071,26 +1071,49 @@
         });
 
         // =============================================
-        // 13. SPLASH E INICIALIZACIÓN
+        // 13. BOTÓN "ABRIR INVITACIÓN"
         // =============================================
-        document.getElementById('enterApp').addEventListener('click', () => {
-            if (!currentGuest) {
-                loadGuestData();
-            } else {
-                document.getElementById('splash').classList.add('hide');
-                document.getElementById('main-app').classList.add('active');
+        document.getElementById('enterApp').addEventListener('click', function() {
+            // Si ya está cargando o ya se mostró, evitar doble clic
+            if (isLoading) return;
+
+            // Si ya tenemos datos, renderizar directamente
+            if (currentGuest) {
+                renderInvitation(currentGuest);
+                return;
             }
+
+            // Si no hay código en la URL
+            if (!getCodeFromURL()) {
+                renderInvitation(null); // mostrar error
+                return;
+            }
+
+            // Cargar datos y luego renderizar
+            this.textContent = 'Cargando...';
+            this.disabled = true;
+            loadGuestData((guest) => {
+                this.textContent = '<i class="fas fa-chevron-right" style="margin-right:8px;"></i> Abrir invitación';
+                this.disabled = false;
+                renderInvitation(guest);
+            });
         });
 
+        // =============================================
+        // 14. INICIALIZACIÓN (PRECARGA SILENCIOSA)
+        // =============================================
+        // Solo precargar datos en segundo plano para que al hacer clic sea rápido
         window.addEventListener('load', function() {
-            if (getCodeFromURL()) {
-                // Cargar menú y datos del invitado en paralelo
-                listenToMenu();
-                loadGuestData();
+            const code = getCodeFromURL();
+            if (code) {
+                // Precargar invitado sin mostrar
+                loadGuestData(() => {});
+                // Precargar menú
+                loadMenu();
             }
         });
 
-        console.log('📱 Página de invitado con menú dinámico desde Firebase.');
+        console.log('📱 Página de invitación con splash obligatorio.');
     </script>
 
 </body>
