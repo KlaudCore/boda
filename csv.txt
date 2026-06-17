@@ -1,0 +1,7 @@
+Nombre,Email,Teléfono,Mesa Asignada,Máximo Acompañantes
+Carlos Pérez,carlos@mail.com,5215512345678,12,2
+Ana García,ana@mail.com,5215587654321,8,1
+Pedro Ruiz,pedro@mail.com,5215533221144,12,0
+Marta López,marta@mail.com,5215544112233,5,1
+Luis Fernández,luis@mail.com,5215566778899,7,2
+Sofía Ramírez,sofia@mail.com,5215599887766,3,1
