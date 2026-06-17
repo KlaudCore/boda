@@ -13,7 +13,7 @@
     </script>
 
     <style>
-        /* ========== ESTILOS (igual que antes, solo añado algunos para el modal de menú) ========== */
+        /* ========== ESTILOS (igual que antes, solo añado algunos para el menú) ========== */
         * {
             margin: 0;
             padding: 0;
@@ -285,6 +285,105 @@
         .btn-sm.delete-sm { background: rgba(239, 68, 68, 0.15); color: #dc2626; }
         .btn-sm.delete-sm:hover { background: rgba(239, 68, 68, 0.3); }
 
+        /* --- Estilos para la sección de menú --- */
+        .menu-section {
+            margin-top: 30px;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            padding-top: 20px;
+        }
+        .menu-section .section-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .menu-section .section-title i {
+            color: var(--gold);
+        }
+        .menu-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 16px;
+            margin-top: 12px;
+        }
+        .menu-card {
+            background: var(--card-bg);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 16px;
+            border: 0.5px solid rgba(255, 255, 255, 0.05);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            transition: 0.2s;
+        }
+        .menu-card:hover {
+            transform: translateY(-2px);
+        }
+        .menu-card .menu-icon {
+            font-size: 2.5rem;
+            color: var(--gold);
+            margin-bottom: 8px;
+        }
+        .menu-card .menu-name {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+        .menu-card .menu-desc {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            margin: 4px 0 10px 0;
+        }
+        .menu-card .btn-sm {
+            background: rgba(239, 68, 68, 0.15);
+            color: #dc2626;
+        }
+        .menu-card .btn-sm:hover {
+            background: rgba(239, 68, 68, 0.3);
+        }
+
+        /* --- Formulario para añadir menú --- */
+        .menu-form {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-top: 16px;
+            align-items: flex-end;
+        }
+        .menu-form .form-group {
+            flex: 1;
+            min-width: 150px;
+        }
+        .menu-form label {
+            display: block;
+            font-size: 0.7rem;
+            font-weight: 500;
+            color: var(--text-secondary);
+            margin-bottom: 4px;
+        }
+        .menu-form input {
+            width: 100%;
+            padding: 10px 14px;
+            border-radius: 16px;
+            border: 0.5px solid rgba(255, 255, 255, 0.1);
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--text-primary);
+            font-size: 0.9rem;
+            transition: 0.2s;
+        }
+        .menu-form input:focus {
+            outline: none;
+            border-color: var(--gold);
+            background: rgba(255, 255, 255, 0.08);
+        }
+        .menu-form .btn {
+            flex: 0 0 auto;
+        }
+
         .footer-actions {
             display: flex;
             justify-content: space-between;
@@ -396,44 +495,6 @@
         }
         .modal-box .btn-group .btn { flex: 1; justify-content: center; }
 
-        /* Estilos para la lista de menú en el modal */
-        .menu-item-list {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            margin: 15px 0;
-        }
-        .menu-item-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background: rgba(255, 255, 255, 0.05);
-            padding: 10px 16px;
-            border-radius: 16px;
-            border: 0.5px solid rgba(255, 255, 255, 0.05);
-        }
-        .menu-item-row .info {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-        .menu-item-row .info i {
-            font-size: 1.4rem;
-            color: var(--gold);
-        }
-        .menu-item-row .info .name {
-            font-weight: 600;
-            color: var(--text-primary);
-        }
-        .menu-item-row .info .desc {
-            font-size: 0.75rem;
-            color: var(--text-secondary);
-        }
-        .menu-item-row .actions {
-            display: flex;
-            gap: 8px;
-        }
-
         .toast-dash {
             position: fixed;
             bottom: 30px;
@@ -473,6 +534,8 @@
             .footer-actions { flex-direction: column; align-items: stretch; }
             .modal-box { padding: 24px 20px; }
             .btn { padding: 8px 16px; font-size: 0.8rem; }
+            .menu-form { flex-direction: column; }
+            .menu-form .form-group { min-width: 100%; }
         }
     </style>
 </head>
@@ -480,6 +543,7 @@
 
     <div class="dashboard-container">
 
+        <!-- HEADER -->
         <div class="dash-header">
             <div class="title-group">
                 <h1><i class="fas fa-crown"></i> Bienvenidos <span style="font-weight:300;">(Rebeca &amp; Juan)</span></h1>
@@ -490,6 +554,7 @@
             </div>
         </div>
 
+        <!-- ESTADÍSTICAS -->
         <div class="stats" id="statsDisplay">
             <div class="stat-item"><span class="dot gray"></span> Total: <span class="num" id="totalCount">0</span></div>
             <div class="stat-item"><span class="dot blue"></span> Enviados: <span class="num" id="sentCount">0</span></div>
@@ -498,6 +563,7 @@
             <div class="stat-item"><span class="dot red"></span> Rechazados: <span class="num" id="declinedCount">0</span></div>
         </div>
 
+        <!-- TABLA DE INVITADOS -->
         <div class="table-wrapper">
             <table>
                 <thead>
@@ -520,10 +586,39 @@
             </table>
         </div>
 
+        <!-- ============================================= -->
+        <!-- SECCIÓN DE ADMINISTRACIÓN DEL MENÚ            -->
+        <!-- ============================================= -->
+        <div class="menu-section">
+            <div class="section-title"><i class="fas fa-utensils"></i> Administrar menú</div>
+
+            <!-- Formulario para añadir nueva opción -->
+            <div class="menu-form" id="menuForm">
+                <div class="form-group">
+                    <label>Nombre del plato</label>
+                    <input type="text" id="menuName" placeholder="Ej: Carne" />
+                </div>
+                <div class="form-group">
+                    <label>Descripción (opcional)</label>
+                    <input type="text" id="menuDesc" placeholder="Ej: Res con guarnición" />
+                </div>
+                <div class="form-group">
+                    <label>Icono (Font Awesome)</label>
+                    <input type="text" id="menuIcon" placeholder="Ej: fa-drumstick-bite" value="fa-drumstick-bite" />
+                </div>
+                <button class="btn btn-primary" id="addMenuBtn"><i class="fas fa-plus"></i> Añadir</button>
+            </div>
+
+            <!-- Lista de opciones de menú -->
+            <div class="menu-grid" id="menuGrid">
+                <p style="color:var(--text-secondary); grid-column:1/-1; text-align:center; padding:20px;">Cargando opciones de menú...</p>
+            </div>
+        </div>
+
+        <!-- FOOTER ACCIONES -->
         <div class="footer-actions">
             <div class="left">
                 <button class="btn btn-primary" id="openAddModal"><i class="fas fa-plus-circle"></i> Añadir invitado</button>
-                <button class="btn btn-outline" id="openMenuModal"><i class="fas fa-utensils"></i> Gestionar menú</button>
                 <button class="btn btn-outline" id="downloadTemplateBtn"><i class="fas fa-download"></i> Plantilla CSV</button>
                 <button class="btn btn-outline" id="resetDataBtn"><i class="fas fa-undo-alt"></i> Reiniciar (ejemplo)</button>
             </div>
@@ -580,46 +675,6 @@
         </div>
     </div>
 
-    <!-- MODAL GESTIONAR MENÚ -->
-    <div class="modal-overlay" id="menuModal">
-        <div class="modal-box">
-            <h2><i class="fas fa-utensils"></i> Gestionar menú</h2>
-            <p class="sub">Añade, edita o elimina las opciones del menú que verán los invitados.</p>
-
-            <!-- Formulario para añadir nueva opción -->
-            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px; margin-bottom:20px;">
-                <div class="form-group" style="margin-bottom:0;">
-                    <label>Nombre</label>
-                    <input type="text" id="newMenuName" placeholder="Ej: Carne" />
-                </div>
-                <div class="form-group" style="margin-bottom:0;">
-                    <label>Descripción (opcional)</label>
-                    <input type="text" id="newMenuDesc" placeholder="Ej: Res" />
-                </div>
-                <div class="form-group" style="margin-bottom:0; grid-column: span 2;">
-                    <label>Icono (clase Font Awesome, ej: fa-drumstick-bite)</label>
-                    <input type="text" id="newMenuIcon" placeholder="fa-drumstick-bite" />
-                </div>
-            </div>
-            <button class="btn btn-primary" id="addMenuBtn" style="width:100%; justify-content:center; margin-bottom:20px;">
-                <i class="fas fa-plus"></i> Agregar opción
-            </button>
-
-            <hr style="border:0.5px solid rgba(255,255,255,0.05); margin:20px 0;" />
-
-            <!-- Lista de opciones del menú -->
-            <div id="menuListContainer">
-                <div class="menu-item-list" id="menuItemList">
-                    <p style="color:var(--text-secondary); text-align:center; padding:20px;">Cargando opciones...</p>
-                </div>
-            </div>
-
-            <div class="btn-group">
-                <button class="btn btn-outline" id="closeMenuModalBtn">Cerrar</button>
-            </div>
-        </div>
-    </div>
-
     <!-- TOAST -->
     <div id="toastDash" class="toast-dash">
         <i class="fas fa-check-circle"></i>
@@ -632,12 +687,12 @@
         // =============================================
         // 🔥 REEMPLAZA ESTOS DATOS CON TU CONFIGURACIÓN DE FIREBASE 🔥
         const firebaseConfig = {
-            apiKey: "AIzaSyCOuNbjlGbFmO_v1XXlOrv28TcNNrzhqJ0",
-            authDomain: "bodas-65995.firebaseapp.com",
-            projectId: "bodas-65995",
-            storageBucket: "bodas-65995.firebasestorage.app",
-            messagingSenderId: "697327379541",
-            appId: "1:697327379541:web:f175f278ae4e2815ce60dc"
+            apiKey: "TU_API_KEY",
+            authDomain: "TU_PROYECTO.firebaseapp.com",
+            projectId: "TU_PROYECTO",
+            storageBucket: "TU_PROYECTO.appspot.com",
+            messagingSenderId: "TU_SENDER_ID",
+            appId: "TU_APP_ID"
         };
 
         firebase.initializeApp(firebaseConfig);
@@ -689,26 +744,16 @@
                             ...data
                         });
                     });
-                    renderMenuList();
+                    renderMenuGrid();
                 }, (error) => {
                     console.error('Error al cargar el menú:', error);
+                    document.getElementById('menuGrid').innerHTML =
+                        `<p style="color:var(--text-secondary); grid-column:1/-1; text-align:center; padding:20px;">Error al cargar el menú.</p>`;
                 });
         }
 
         // =============================================
-        // 5. GENERAR CÓDIGO ÚNICO
-        // =============================================
-        function generateCode() {
-            const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-            let code = '';
-            for (let i = 0; i < 5; i++) {
-                code += chars.charAt(Math.floor(Math.random() * chars.length));
-            }
-            return code;
-        }
-
-        // =============================================
-        // 6. RENDERIZAR TABLA DE INVITADOS
+        // 5. RENDERIZAR TABLA DE INVITADOS
         // =============================================
         function renderTable() {
             const tbody = document.getElementById('guestTableBody');
@@ -743,28 +788,21 @@
                         statusText = '⏳ Pendiente';
                 }
 
-                // Buscar el nombre del menú seleccionado
-                let menuName = guest.menu || '--';
-                if (menuName !== '--') {
-                    const menuItem = menuItems.find(m => m.id === guest.menu || m.nombre === guest.menu);
-                    if (menuItem) menuName = menuItem.nombre;
-                }
-
                 const row = document.createElement('tr');
                 row.innerHTML = `
                             <td>${index + 1}</td>
                             <td><strong>${guest.name}</strong></td>
                             <td>Mesa ${guest.table}</td>
-                            <td style="font-size:0.75rem; color:var(--text-secondary);">${guest.phone}</td>
+                            <td style="font-size:0.8rem; color:var(--text-secondary);">${guest.phone}</td>
                             <td><span class="link-preview" title="${link}">${link}</span></td>
                             <td><span class="${badgeClass}">${statusText}</span></td>
-                            <td>${guest.acompanantes ?? '--'}</td>
-                            <td style="font-size:0.75rem;">${menuName}</td>
-                            <td style="font-size:0.7rem; max-width:100px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;" title="${guest.alergias || '--'}">${guest.alergias || '--'}</td>
+                            <td>${guest.acompanantes || guest.maxGuests || 0}</td>
+                            <td>${guest.menu || '—'}</td>
+                            <td style="font-size:0.7rem; max-width:100px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${guest.alergias || '—'}</td>
                             <td>
                                 <div class="action-buttons">
-                                    <button class="btn-sm copy-sm" onclick="copyLink('${link}', '${guest.name}')"><i class="fas fa-copy"></i></button>
-                                    <button class="btn-sm whatsapp-sm" onclick="sendWhatsApp('${guest.phone}', '${guest.name}', '${link}', '${guest.id}')"><i class="fab fa-whatsapp"></i></button>
+                                    <button class="btn-sm copy-sm" onclick="copyLink('${link}', '${guest.name}')"><i class="fas fa-copy"></i> Link</button>
+                                    <button class="btn-sm whatsapp-sm" onclick="sendWhatsApp('${guest.phone}', '${guest.name}', '${link}', '${guest.id}')"><i class="fab fa-whatsapp"></i> WhatsApp</button>
                                     <button class="btn-sm reset-sm" onclick="resetGuestStatus('${guest.id}')"><i class="fas fa-undo"></i></button>
                                     <button class="btn-sm delete-sm" onclick="deleteGuest('${guest.id}')"><i class="fas fa-trash-alt"></i></button>
                                 </div>
@@ -776,73 +814,102 @@
         }
 
         // =============================================
-        // 7. RENDERIZAR LISTA DE MENÚ EN EL MODAL
+        // 6. ESTADÍSTICAS
         // =============================================
-        function renderMenuList() {
-            const container = document.getElementById('menuItemList');
+        function updateStats() {
+            const total = guests.length;
+            const sent = guests.filter(g => g.status === 'sent').length;
+            const confirmed = guests.filter(g => g.status === 'confirmado').length;
+            const pending = guests.filter(g => g.status === 'pending' || g.status === 'pensando').length;
+            const declined = guests.filter(g => g.status === 'rechazado').length;
+            document.getElementById('totalCount').textContent = total;
+            document.getElementById('sentCount').textContent = sent;
+            document.getElementById('confirmedCount').textContent = confirmed;
+            document.getElementById('pendingCount').textContent = pending;
+            document.getElementById('declinedCount').textContent = declined;
+        }
+
+        // =============================================
+        // 7. RENDERIZAR GRID DEL MENÚ
+        // =============================================
+        function renderMenuGrid() {
+            const grid = document.getElementById('menuGrid');
             if (menuItems.length === 0) {
-                container.innerHTML = `<p style="color:var(--text-secondary); text-align:center; padding:20px;">No hay opciones de menú. ¡Agrega una!</p>`;
+                grid.innerHTML =
+                    `<p style="color:var(--text-secondary); grid-column:1/-1; text-align:center; padding:20px;">No hay opciones de menú. Añade una arriba.</p>`;
                 return;
             }
 
-            container.innerHTML = '';
+            grid.innerHTML = '';
             menuItems.forEach((item) => {
-                const div = document.createElement('div');
-                div.className = 'menu-item-row';
-                div.innerHTML = `
-                            <div class="info">
-                                <i class="fas ${item.icono || 'fa-utensils'}"></i>
-                                <div>
-                                    <div class="name">${item.nombre}</div>
-                                    <div class="desc">${item.descripcion || ''}</div>
-                                </div>
-                            </div>
-                            <div class="actions">
-                                <button class="btn-sm copy-sm" onclick="editMenuItem('${item.id}')"><i class="fas fa-edit"></i></button>
-                                <button class="btn-sm delete-sm" onclick="deleteMenuItem('${item.id}')"><i class="fas fa-trash-alt"></i></button>
-                            </div>
+                const card = document.createElement('div');
+                card.className = 'menu-card';
+                card.innerHTML = `
+                            <div class="menu-icon"><i class="fas ${item.icono || 'fa-utensils'}"></i></div>
+                            <div class="menu-name">${item.nombre}</div>
+                            <div class="menu-desc">${item.descripcion || ''}</div>
+                            <button class="btn-sm" onclick="deleteMenuItem('${item.id}')"><i class="fas fa-trash-alt"></i> Eliminar</button>
                         `;
-                container.appendChild(div);
+                grid.appendChild(card);
             });
         }
 
         // =============================================
-        // 8. CRUD MENÚ
+        // 8. FUNCIONES CRUD PARA EL MENÚ
         // =============================================
-        function addMenuItem(nombre, descripcion, icono) {
-            return db.collection('menu').add({
+        function addMenuItem() {
+            const nombre = document.getElementById('menuName').value.trim();
+            const descripcion = document.getElementById('menuDesc').value.trim();
+            const icono = document.getElementById('menuIcon').value.trim() || 'fa-utensils';
+
+            if (!nombre) {
+                showToast('⚠️ El nombre del plato es obligatorio.');
+                return;
+            }
+
+            db.collection('menu').add({
                 nombre,
-                descripcion: descripcion || '',
-                icono: icono || 'fa-utensils'
+                descripcion,
+                icono: icono.startsWith('fa-') ? icono : 'fa-' + icono,
+                createdAt: firebase.firestore.FieldValue.serverTimestamp()
+            }).then(() => {
+                showToast(`✅ "${nombre}" añadido al menú.`);
+                document.getElementById('menuName').value = '';
+                document.getElementById('menuDesc').value = '';
+                document.getElementById('menuIcon').value = 'fa-drumstick-bite';
+            }).catch((error) => {
+                console.error('Error al añadir menú:', error);
+                showToast('⚠️ Error al añadir la opción de menú.');
             });
         }
 
         function deleteMenuItem(id) {
-            if (!confirm('¿Eliminar esta opción del menú?')) return;
-            db.collection('menu').doc(id).delete()
-                .then(() => showToast('🗑️ Opción eliminada.'))
-                .catch(() => showToast('⚠️ Error al eliminar.'));
-        }
-
-        function editMenuItem(id) {
-            const item = menuItems.find(m => m.id === id);
+            const item = menuItems.find(i => i.id === id);
             if (!item) return;
-            const newName = prompt('Nuevo nombre:', item.nombre);
-            if (newName === null) return;
-            const newDesc = prompt('Nueva descripción:', item.descripcion || '');
-            const newIcon = prompt('Nuevo icono (clase Font Awesome):', item.icono || 'fa-utensils');
-            db.collection('menu').doc(id).update({
-                    nombre: newName,
-                    descripcion: newDesc || '',
-                    icono: newIcon || 'fa-utensils'
-                })
-                .then(() => showToast('✅ Opción actualizada.'))
-                .catch(() => showToast('⚠️ Error al actualizar.'));
+            if (confirm(`¿Eliminar "${item.nombre}" del menú?`)) {
+                db.collection('menu').doc(id).delete()
+                    .then(() => {
+                        showToast(`🗑️ "${item.nombre}" eliminado.`);
+                    })
+                    .catch((error) => {
+                        console.error('Error al eliminar menú:', error);
+                        showToast('⚠️ Error al eliminar.');
+                    });
+            }
         }
 
         // =============================================
-        // 9. FUNCIONES CRUD INVITADOS
+        // 9. FUNCIONES CRUD PARA INVITADOS
         // =============================================
+        function generateCode() {
+            const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+            let code = '';
+            for (let i = 0; i < 5; i++) {
+                code += chars.charAt(Math.floor(Math.random() * chars.length));
+            }
+            return code;
+        }
+
         function addGuestToFirestore(guestData) {
             return db.collection('invitados').add({
                 ...guestData,
@@ -863,7 +930,7 @@
         }
 
         // =============================================
-        // 10. ACCIONES DE LA UI
+        // 10. ACCIONES DE LA UI (INVITADOS)
         // =============================================
         function copyLink(link, name) {
             navigator.clipboard.writeText(link).then(() => {
@@ -900,8 +967,13 @@
             const guest = guests.find(g => g.id === id);
             if (guest && (guest.status === 'pending' || guest.status === 'pensando')) {
                 updateGuestStatus(id, 'sent')
-                    .then(() => showToast(`📨 Mensaje enviado a ${name}. Estado: Enviado`))
-                    .catch(() => showToast('⚠️ Error al actualizar el estado.'));
+                    .then(() => {
+                        showToast(`📨 Mensaje enviado a ${name}. Estado: Enviado`);
+                    })
+                    .catch((error) => {
+                        console.error('Error al actualizar estado:', error);
+                        showToast('⚠️ Error al actualizar el estado.');
+                    });
             } else if (guest) {
                 showToast(`💬 Chat abierto con ${name} (${guest.status})`);
             } else {
@@ -914,8 +986,13 @@
             if (!guest) return;
             if (confirm(`¿Reiniciar estado de ${guest.name} a "Pendiente"?`)) {
                 updateGuestStatus(id, 'pending')
-                    .then(() => showToast(`↩️ ${guest.name} reiniciado a Pendiente`))
-                    .catch(() => showToast('⚠️ Error al reiniciar el estado.'));
+                    .then(() => {
+                        showToast(`↩️ ${guest.name} reiniciado a Pendiente`);
+                    })
+                    .catch((error) => {
+                        console.error('Error al reiniciar:', error);
+                        showToast('⚠️ Error al reiniciar el estado.');
+                    });
             }
         }
 
@@ -924,13 +1001,18 @@
             if (!guest) return;
             if (confirm(`⚠️ ¿Estás seguro de eliminar a ${guest.name}?`)) {
                 deleteGuestFromFirestore(id)
-                    .then(() => showToast(`🗑️ ${guest.name} eliminado.`))
-                    .catch(() => showToast('⚠️ Error al eliminar el invitado.'));
+                    .then(() => {
+                        showToast(`🗑️ ${guest.name} eliminado.`);
+                    })
+                    .catch((error) => {
+                        console.error('Error al eliminar:', error);
+                        showToast('⚠️ Error al eliminar el invitado.');
+                    });
             }
         }
 
         // =============================================
-        // 11. REINICIAR DATOS (EJEMPLO)
+        // 11. REINICIAR DATOS (SOLO EJEMPLO)
         // =============================================
         function resetAllData() {
             if (!confirm('⚠️ ¿Seguro que quieres reiniciar los datos de ejemplo? Esto eliminará todos los invitados actuales.'))
@@ -967,12 +1049,11 @@
                 Promise.all(promises)
                     .then(() => showToast('🔄 Datos de ejemplo cargados.'))
                     .catch(() => showToast('⚠️ Error al cargar datos de ejemplo.'));
-            }).catch(() => showToast('⚠️ Error al reiniciar datos.'));
+            }).catch(() => {
+                showToast('⚠️ Error al reiniciar datos.');
+            });
         }
 
-        // =============================================
-        // 12. BOTÓN DE DESCARGA DE PLANTILLA CSV
-        // =============================================
         function downloadTemplate() {
             const content = 'Nombre,Email,Teléfono,Mesa Asignada,Máximo Acompañantes\nJuan Pérez,juan@mail.com,5215512345678,1,2\nMaría Gómez,maria@mail.com,5215587654321,2,1\nCarlos Ruiz,carlos@mail.com,5215533221144,3,0';
             const blob = new Blob([content], { type: 'text/csv;charset=utf-8;' });
@@ -986,15 +1067,14 @@
             URL.revokeObjectURL(url);
             showToast('📥 Plantilla descargada.');
         }
-        document.getElementById('downloadTemplateBtn').addEventListener('click', downloadTemplate);
 
         // =============================================
-        // 13. MODAL AÑADIR INVITADO
+        // 12. MODAL DE AÑADIR INVITADO
         // =============================================
-        const addModal = document.getElementById('addModal');
-        document.getElementById('openAddModal').addEventListener('click', () => addModal.classList.add('active'));
-        document.getElementById('closeModalBtn').addEventListener('click', () => addModal.classList.remove('active'));
-        addModal.addEventListener('click', (e) => { if (e.target === addModal) addModal.classList.remove('active'); });
+        const modal = document.getElementById('addModal');
+        document.getElementById('openAddModal').addEventListener('click', () => modal.classList.add('active'));
+        document.getElementById('closeModalBtn').addEventListener('click', () => modal.classList.remove('active'));
+        modal.addEventListener('click', (e) => { if (e.target === modal) modal.classList.remove('active'); });
 
         document.getElementById('addManualBtn').addEventListener('click', () => {
             const name = document.getElementById('newName').value.trim();
@@ -1017,7 +1097,7 @@
 
             addGuestToFirestore(newGuest)
                 .then(() => {
-                    addModal.classList.remove('active');
+                    modal.classList.remove('active');
                     showToast(`✅ ${name} añadido correctamente.`);
                     document.getElementById('newName').value = '';
                     document.getElementById('newPhone').value = '';
@@ -1025,10 +1105,12 @@
                     document.getElementById('newTable').value = '';
                     document.getElementById('newMaxGuests').value = '';
                 })
-                .catch(() => showToast('⚠️ Error al añadir el invitado.'));
+                .catch((error) => {
+                    console.error('Error al añadir:', error);
+                    showToast('⚠️ Error al añadir el invitado.');
+                });
         });
 
-        // Importar CSV
         const fileInput = document.getElementById('fileInput');
         const fileUploadArea = document.getElementById('fileUploadArea');
         fileUploadArea.addEventListener('click', () => fileInput.click());
@@ -1066,7 +1148,7 @@
                 const promises = imported.map(g => db.collection('invitados').add(g));
                 Promise.all(promises)
                     .then(() => {
-                        addModal.classList.remove('active');
+                        modal.classList.remove('active');
                         showToast(`✅ ${imported.length} invitados importados.`);
                         fileInput.value = '';
                     })
@@ -1076,32 +1158,20 @@
         });
 
         // =============================================
-        // 14. MODAL GESTIONAR MENÚ
+        // 13. EVENTOS DEL MENÚ
         // =============================================
-        const menuModal = document.getElementById('menuModal');
-        document.getElementById('openMenuModal').addEventListener('click', () => menuModal.classList.add('active'));
-        document.getElementById('closeMenuModalBtn').addEventListener('click', () => menuModal.classList.remove('active'));
-        menuModal.addEventListener('click', (e) => { if (e.target === menuModal) menuModal.classList.remove('active'); });
+        document.getElementById('addMenuBtn').addEventListener('click', addMenuItem);
 
-        document.getElementById('addMenuBtn').addEventListener('click', () => {
-            const nombre = document.getElementById('newMenuName').value.trim();
-            const descripcion = document.getElementById('newMenuDesc').value.trim();
-            const icono = document.getElementById('newMenuIcon').value.trim() || 'fa-utensils';
-
-            if (!nombre) { showToast('⚠️ El nombre es obligatorio.'); return; }
-
-            addMenuItem(nombre, descripcion, icono)
-                .then(() => {
-                    showToast(`✅ Opción "${nombre}" añadida.`);
-                    document.getElementById('newMenuName').value = '';
-                    document.getElementById('newMenuDesc').value = '';
-                    document.getElementById('newMenuIcon').value = '';
-                })
-                .catch(() => showToast('⚠️ Error al añadir opción.'));
+        // Permitir añadir menú con Enter
+        document.getElementById('menuName').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') addMenuItem();
+        });
+        document.getElementById('menuDesc').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') addMenuItem();
         });
 
         // =============================================
-        // 15. TEMA OSCURO / CLARO
+        // 14. TEMA OSCURO / CLARO
         // =============================================
         const themeToggle = document.getElementById('themeToggle');
         const iconTheme = themeToggle.querySelector('i');
@@ -1123,7 +1193,7 @@
         });
 
         // =============================================
-        // 16. TOAST
+        // 15. TOAST
         // =============================================
         function showToast(message) {
             const toast = document.getElementById('toastDash');
@@ -1134,30 +1204,15 @@
         }
 
         // =============================================
-        // 17. ESTADÍSTICAS
-        // =============================================
-        function updateStats() {
-            const total = guests.length;
-            const sent = guests.filter(g => g.status === 'sent').length;
-            const confirmed = guests.filter(g => g.status === 'confirmado').length;
-            const pending = guests.filter(g => g.status === 'pending' || g.status === 'pensando').length;
-            const declined = guests.filter(g => g.status === 'rechazado').length;
-
-            document.getElementById('totalCount').textContent = total;
-            document.getElementById('sentCount').textContent = sent;
-            document.getElementById('confirmedCount').textContent = confirmed;
-            document.getElementById('pendingCount').textContent = pending;
-            document.getElementById('declinedCount').textContent = declined;
-        }
-
-        // =============================================
-        // 18. INICIALIZAR
+        // 16. INICIALIZAR
         // =============================================
         document.getElementById('resetDataBtn').addEventListener('click', resetAllData);
+        document.getElementById('downloadTemplateBtn').addEventListener('click', downloadTemplate);
+
         listenToGuests();
         listenToMenu();
 
-        console.log('🚀 Dashboard conectado a Firebase con gestión de menú.');
+        console.log('🚀 Dashboard con gestión de menú conectado a Firebase.');
     </script>
 
 </body>
