@@ -5,15 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <title>Invitación · Rebeca & Juan</title>
 
-    <!-- Bootstrap Icons (reemplaza a Font Awesome) -->
+    <!-- Bootstrap Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
 
     <!-- Estilos propios -->
     <link rel="stylesheet" href="invitacion.css" />
-
-    <!-- QRCode.js (librería local para generar QR) -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js">
-    </script>
 
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js">
@@ -25,17 +21,15 @@
 
     <div id="app-container">
 
-        <!-- ===== SPLASH ===== -->
+        <!-- SPLASH -->
         <div id="splash">
             <div class="ring-loader"></div>
             <h1>Rebeca <span>&</span> Juan</h1>
             <p>· DICIEMBRE · 2026 ·</p>
-            <button class="btn-splash" id="enterApp">
-                <i class="bi bi-chevron-right"></i> Abrir invitación
-            </button>
+            <button class="btn-splash" id="enterApp"><i class="bi bi-chevron-right"></i> Abrir invitación</button>
         </div>
 
-        <!-- ===== TOAST ===== -->
+        <!-- TOAST -->
         <div id="toast" class="toast">
             <i class="bi bi-check-circle-fill"></i>
             <div class="toast-text">
@@ -45,10 +39,9 @@
             <button class="toast-close" id="closeToast"><i class="bi bi-x-lg"></i></button>
         </div>
 
-        <!-- ===== APP ===== -->
+        <!-- APP -->
         <div id="main-app">
 
-            <!-- HEADER -->
             <header class="app-header">
                 <div class="greeting">
                     <small>Invitado especial</small>
@@ -57,7 +50,6 @@
                 <div class="badge-mesa" id="badgeMesa">Mesa --</div>
             </header>
 
-            <!-- TABS -->
             <div class="tab-content" id="tabContent">
 
                 <!-- HOME -->
@@ -143,9 +135,7 @@
                     <div class="glass-card" style="text-align:center;">
                         <div class="card-title" style="justify-content:center;"><i class="bi bi-qr-code"></i> Mi pase digital</div>
                         <div id="qr-container" style="min-height:220px; display:flex; flex-direction:column; align-items:center; justify-content:center;">
-                            <!-- Aquí se inserta el QR generado por QRCode.js -->
-                            <div id="qrCanvasContainer"></div>
-                            <!-- Fallback en texto (si la librería falla) -->
+                            <img id="qrImage" src="" alt="Código QR" style="display:none; width:200px; height:200px; border-radius:16px; background:white; padding:10px; box-shadow: 0 4px 16px rgba(0,0,0,0.1);" />
                             <div id="qrFallback" style="display:none; background:white; padding:20px; border-radius:16px; color:black; font-size:1.1rem; text-align:center; box-shadow:0 2px 8px rgba(0,0,0,0.1); width:100%; max-width:250px;">
                                 <div style="font-weight:bold; margin-bottom:6px; color:#555;">Código de acceso</div>
                                 <code style="font-size:1.4rem; background:#f0f0f0; padding:6px 16px; border-radius:8px; font-weight:bold; letter-spacing:2px;" id="qrCodeText">---</code>
@@ -160,7 +150,6 @@
 
             </div>
 
-            <!-- NAVEGACIÓN INFERIOR -->
             <nav class="bottom-nav">
                 <button class="nav-item active" data-target="page-home"><i class="bi bi-house"></i><span>Inicio</span></button>
                 <button class="nav-item" data-target="page-rsvp"><i class="bi bi-calendar-check"></i><span>RSVP</span></button>
@@ -170,7 +159,6 @@
         </div>
     </div>
 
-    <!-- Archivo JavaScript principal -->
     <script src="invitacion.js"></script>
 </body>
 </html>

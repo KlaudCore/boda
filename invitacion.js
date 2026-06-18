@@ -1,7 +1,6 @@
 // =============================================
 // CONFIGURACIÓN DE FIREBASE
 // =============================================
-// 🔥 REEMPLAZA CON TU CONFIGURACIÓN 🔥
 const firebaseConfig = {
     apiKey: "AIzaSyCOuNbjlGbFmO_v1XXlOrv28TcNNrzhqJ0",
     authDomain: "bodas-65995.firebaseapp.com",
@@ -220,83 +219,53 @@ function updateCountdown() {
 }
 
 // =============================================
-// QR CODE: Generación local + fallback de texto
+// QR CODE POR API EXTERNA + FALLBACK
 // =============================================
 function generateQR(code, name) {
-    console.log('🔍 generateQR ejecutado para:', name, 'código:', code);
-    
-    const container = document.getElementById('qr-container');
-    if (!container) {
-        console.error('❌ Contenedor QR no encontrado.');
-        return;
-    }
-
-    // Buscar o crear el contenedor para el QR (donde se pintará la librería)
-    let qrCanvas = document.getElementById('qrCanvasContainer');
-    if (!qrCanvas) {
-        qrCanvas = document.createElement('div');
-        qrCanvas.id = 'qrCanvasContainer';
-        qrCanvas.style.display = 'flex';
-        qrCanvas.style.justifyContent = 'center';
-        qrCanvas.style.alignItems = 'center';
-        qrCanvas.style.width = '100%';
-        qrCanvas.style.minHeight = '220px';
-        // Insertar al inicio del contenedor
-        container.prepend(qrCanvas);
-    }
-
-    // Limpiar el contenedor del QR (sin eliminar el elemento)
-    qrCanvas.innerHTML = '';
-
-    // Asegurar que el fallback esté visible por defecto (si existe)
+    const img = document.getElementById('qrImage');
     const fallback = document.getElementById('qrFallback');
-    if (fallback) fallback.style.display = 'block';
+    const codeText = document.getElementById('qrCodeText');
+
+    // Ocultar todo al inicio
+    if (img) img.style.display = 'none';
+    if (fallback) fallback.style.display = 'none';
 
     if (!code || !name) {
-        // Si no hay datos, mostrar fallback con mensaje
         if (fallback) {
-            const codeText = document.getElementById('qrCodeText');
-            if (codeText) codeText.textContent = 'Sin código';
+            codeText.textContent = 'Sin código';
             fallback.style.display = 'block';
         }
-        console.warn('⚠️ Datos insuficientes para generar QR.');
         return;
     }
 
-    // 1. Intentar usar la librería QRCode.js (local)
-    try {
-        if (typeof QRCode !== 'undefined') {
-            console.log('🔄 Generando QR con QRCode.js...');
-            new QRCode(qrCanvas, {
-                text: `Invitado: ${name} | Código: ${code}`,
-                width: 200,
-                height: 200,
-                colorDark: "#000000",
-                colorLight: "#ffffff",
-                correctLevel: QRCode.CorrectLevel.H
-            });
-            // Si llegamos aquí, el QR se generó bien → ocultar fallback
-            if (fallback) fallback.style.display = 'none';
-            console.log('✅ QR generado con éxito.');
-            return;
-        } else {
-            console.warn('⚠️ QRCode no definido, usando fallback de texto.');
-        }
-    } catch (e) {
-        console.error('❌ Error al generar QR con QRCode.js:', e);
-    }
+    // Intentar cargar la imagen QR desde API externa
+    const data = `Invitado: ${name} | Código: ${code}`;
+    const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(data)}&margin=10`;
 
-    // 2. Fallback: mostrar el código en texto
-    if (fallback) {
-        const codeText = document.getElementById('qrCodeText');
-        if (codeText) codeText.textContent = code;
-        fallback.style.display = 'block';
-        console.log('📝 Mostrando fallback de texto para el QR.');
+    if (img) {
+        img.onload = function() {
+            img.style.display = 'block';
+            if (fallback) fallback.style.display = 'none';
+        };
+        img.onerror = function() {
+            img.style.display = 'none';
+            if (fallback) {
+                codeText.textContent = code;
+                fallback.style.display = 'block';
+            }
+        };
+        img.src = qrUrl;
+    } else {
+        // Si no hay elemento img, mostrar fallback
+        if (fallback) {
+            codeText.textContent = code;
+            fallback.style.display = 'block';
+        }
     }
 }
 
 // =============================================
-// NAVEGACIÓN TABS (incluye actualización del QR)
+// NAVEGACIÓN TABS
 // =============================================
 document.querySelectorAll('.bottom-nav .nav-item').forEach(item => {
     item.addEventListener('click', function() {
@@ -305,14 +274,11 @@ document.querySelectorAll('.bottom-nav .nav-item').forEach(item => {
         document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
         document.getElementById(this.dataset.target).classList.add('active');
         if (this.dataset.target === 'page-qr') {
-            // Pequeño retraso para asegurar que el DOM se actualice
             setTimeout(() => {
                 if (currentGuest) {
                     generateQR(currentGuest.code, currentGuest.name);
-                } else {
-                    console.warn('⚠️ No hay invitado cargado para generar QR.');
                 }
-            }, 400);
+            }, 300);
         }
     });
 });
@@ -443,4 +409,4 @@ window.addEventListener('load', function() {
     }
 });
 
-console.log('📱 Página de invitación con Bootstrap Icons y QR local.');
+console.log('📱 Página de invitación con Bootstrap Icons y QR por API.');

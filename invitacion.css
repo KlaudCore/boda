@@ -23,18 +23,16 @@ body {
     justify-content: center;
     align-items: center;
     padding: 16px;
-    /* === IMAGEN DE FONDO RESTAURADA === */
-    background: url('back.webp') no-repeat center center fixed;
+    background: url('https://images.unsplash.com/photo-1519741497674-611481863552?w=1200&q=80') no-repeat center center fixed;
     background-size: cover;
-    background-color: #1a1410; /* fallback */
+    background-color: #1a1410;
 }
 
 #app-container {
     width: 100%;
     max-width: 420px;
     min-height: 780px;
-    /* Fondo blanco con opacidad para que se vea la imagen de fondo */
-    background: rgba(255, 255, 255, 0.6);
+    background: rgba(255, 255, 255, 0.92);
     border-radius: 56px;
     box-shadow: 0 30px 60px rgba(0, 0, 0, 0.7);
     overflow: hidden;
@@ -51,7 +49,7 @@ body {
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(255, 255, 255, 0.95); /* Fondo blanco casi opaco para el splash */
+    background: rgba(255, 255, 255, 0.95);
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -430,26 +428,14 @@ textarea::placeholder {
 
 /* ===== QR ===== */
 #qr-container {
+    min-height: 220px;
     display: flex;
+    flex-direction: column;
+    align-items: center;
     justify-content: center;
-    padding: 10px 0;
 }
-#qr-container #qrcode {
-    background: white;
-    padding: 16px;
-    border-radius: 20px;
-    box-shadow: var(--sombra);
-    border: var(--borde);
-}
-.qr-subtext {
-    text-align: center;
-    margin-top: 12px;
-    color: var(--texto-secundario);
-    font-size: 0.75rem;
-    letter-spacing: 1px;
-}
-.qr-subtext strong {
-    color: var(--texto-principal);
+#qr-container img {
+    max-width: 100%;
 }
 
 /* ===== NAVEGACIÓN INFERIOR ===== */
