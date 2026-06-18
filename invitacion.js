@@ -400,23 +400,24 @@ document.getElementById('enterApp').addEventListener('click', function() {
 });
 
 // =============================================
-// CARGA AUTOMÁTICA (MODIFICADA)
+// CARGA AUTOMÁTICA MEJORADA
 // =============================================
 window.addEventListener('load', function() {
     const code = getCodeFromURL();
+    
     if (code) {
-        // Si hay código, cargamos datos y mostramos la app directamente
+        // Si hay código, cargamos los datos y mostramos la app directamente
         loadGuestData((guest) => {
-            renderInvitation(guest); // Esta función oculta el Splash y muestra #main-app
+            // Esto oculta el splash y muestra #main-app
+            renderInvitation(guest);
+            
             if (guest) {
-                loadMenu(); // Cargar menú solo si el invitado es válido
+                // Si el invitado es válido, cargamos el menú
+                loadMenu();
             }
         });
     } else {
-        // Si no hay código, precargamos datos por si acaso
-        loadGuestData(() => {});
-        loadMenu();
+        // Si no hay código, mostramos mensaje de error
+        renderInvitation(null);
     }
 });
-
-console.log('📱 Página de invitación con Bootstrap Icons y QR por API.');
