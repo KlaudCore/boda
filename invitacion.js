@@ -223,40 +223,41 @@ function updateCountdown() {
 // QR CODE CON FALLBACK
 // =============================================
 function generateQR(code, name) {
-    console.log('🔍 Generando QR para:', name, 'código:', code);
     const container = document.getElementById('qrcode');
     if (!container) {
-        console.error('❌ Contenedor QR no encontrado en el DOM.');
+        console.warn('⚠️ Contenedor QR no encontrado.');
         return;
     }
-    console.log('✅ Contenedor encontrado:', container);
 
-    // Limpiar
     container.innerHTML = '';
 
-    // Verificar si la librería está cargada
-    if (typeof QRCode === 'undefined') {
-        console.warn('⚠️ QRCode no definido, usando fallback.');
-        container.innerHTML = `<div style="background:white; padding:16px; border-radius:8px; color:black; font-weight:bold;">Código: ${code}</div>`;
-        return;
-    }
-
+    // Mostrar siempre el código en texto como respaldo
+    // e intentar generar el QR si la librería está disponible
     try {
-        new QRCode(container, {
-            text: `Invitado: ${name} | Código: ${code}`,
-            width: 180,
-            height: 180,
-            colorDark: "#000000",
-            colorLight: "#ffffff",
-            correctLevel: QRCode.CorrectLevel.H
-        });
-        console.log('✅ QR generado exitosamente.');
+        if (typeof QRCode !== 'undefined' && QRCode) {
+            new QRCode(container, {
+                text: `Invitado: ${name} | Código: ${code}`,
+                width: 180,
+                height: 180,
+                colorDark: "#000000",
+                colorLight: "#ffffff",
+                correctLevel: QRCode.CorrectLevel.H
+            });
+            console.log('✅ QR generado con éxito.');
+        } else {
+            throw new Error('QRCode no definido');
+        }
     } catch (e) {
-        console.error('❌ Error al generar QR:', e);
-        container.innerHTML = `<div style="background:white; padding:16px; border-radius:8px; color:black; font-weight:bold;">Código: ${code}</div>`;
+        console.warn('⚠️ Usando fallback de texto para QR:', e);
+        container.innerHTML = `
+            <div style="background:white; padding:16px; border-radius:12px; 
+                 color:black; font-size:1rem; text-align:center; box-shadow:0 2px 8px rgba(0,0,0,0.1);">
+                <div style="font-weight:bold; margin-bottom:4px;">Código de acceso</div>
+                <code style="font-size:1.2rem; background:#f0f0f0; padding:4px 12px; border-radius:6px;">${code}</code>
+            </div>
+        `;
     }
 }
-
 // =============================================
 // NAVEGACIÓN TABS
 // =============================================
