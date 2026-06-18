@@ -270,6 +270,14 @@ function generateQR(code, name) {
         }
     }
 }
+// =============================================
+// VERIFICAR ELEMENTOS DE NAVEGACIÓN
+// =============================================
+console.log('🔍 Verificando elementos de navegación:');
+console.log('  - page-home:', document.getElementById('page-home') ? '✅' : '❌');
+console.log('  - page-rsvp:', document.getElementById('page-rsvp') ? '✅' : '❌');
+console.log('  - page-map:', document.getElementById('page-map') ? '✅' : '❌');
+console.log('  - page-qr:', document.getElementById('page-qr') ? '✅' : '❌');
 
 // =============================================
 // NAVEGACIÓN TABS
