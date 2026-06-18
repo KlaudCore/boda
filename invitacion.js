@@ -223,17 +223,21 @@ function updateCountdown() {
 // QR CODE CON FALLBACK
 // =============================================
 function generateQR(code, name) {
+    console.log('🔍 Generando QR para:', name, 'código:', code);
     const container = document.getElementById('qrcode');
     if (!container) {
-        console.warn('⚠️ Contenedor QR no encontrado.');
+        console.error('❌ Contenedor QR no encontrado en el DOM.');
         return;
     }
+    console.log('✅ Contenedor encontrado:', container);
 
+    // Limpiar
     container.innerHTML = '';
 
+    // Verificar si la librería está cargada
     if (typeof QRCode === 'undefined') {
-        console.warn('⚠️ Librería QRCode no cargada. Mostrando fallback.');
-        container.innerHTML = `<div style="background:white; padding:12px; border-radius:8px; color:black; font-weight:bold;">Código: ${code}</div>`;
+        console.warn('⚠️ QRCode no definido, usando fallback.');
+        container.innerHTML = `<div style="background:white; padding:16px; border-radius:8px; color:black; font-weight:bold;">Código: ${code}</div>`;
         return;
     }
 
@@ -246,9 +250,10 @@ function generateQR(code, name) {
             colorLight: "#ffffff",
             correctLevel: QRCode.CorrectLevel.H
         });
+        console.log('✅ QR generado exitosamente.');
     } catch (e) {
-        console.error('Error al generar QR:', e);
-        container.innerHTML = `<div style="background:white; padding:12px; border-radius:8px; color:black; font-weight:bold;">Código: ${code}</div>`;
+        console.error('❌ Error al generar QR:', e);
+        container.innerHTML = `<div style="background:white; padding:16px; border-radius:8px; color:black; font-weight:bold;">Código: ${code}</div>`;
     }
 }
 
