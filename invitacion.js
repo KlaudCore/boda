@@ -216,21 +216,42 @@ function updateCountdown() {
 }
 
 // =============================================
-// QR CODE GENERADO POR API EXTERNA (sin librerías)
+// QR CODE: SIEMPRE MUESTRA TEXTO + IMAGEN OPCIONAL
 // =============================================
 function generateQR(code, name) {
     const img = document.getElementById('qrImage');
     const fallback = document.getElementById('qrFallback');
     const codeText = document.getElementById('qrCodeText');
 
-    // Mostrar siempre el código en texto por si la imagen falla
-    codeText.textContent = code;
-    fallback.style.display = 'block';
-
-    if (!code || !name) {
-        img.style.display = 'none';
-        return;
+    // 1. Mostrar siempre el código en texto (fallback visible)
+    if (code) {
+        codeText.textContent = code;
+        fallback.style.display = 'block';
+    } else {
+        fallback.style.display = 'none';
     }
+
+    // 2. Intentar mostrar la imagen QR (mejora visual)
+    if (code && name) {
+        const data = `Invitado: ${name} | Código: ${code}`;
+        const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(data)}&margin=10`;
+        
+        // Configurar la imagen
+        img.onload = function() {
+            // Si la imagen carga, la mostramos y ocultamos el fallback
+            img.style.display = 'block';
+            fallback.style.display = 'none';
+        };
+        img.onerror = function() {
+            // Si la imagen falla, ocultamos la imagen y dejamos el fallback visible
+            img.style.display = 'none';
+            fallback.style.display = 'block';
+        };
+        img.src = qrUrl;
+    } else {
+        img.style.display = 'none';
+    }
+}
 
     // Construir la URL de la API de QRServer
     const data = `Invitado: ${name} | Código: ${code}`;
