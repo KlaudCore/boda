@@ -10,6 +10,10 @@ const firebaseConfig = {
     messagingSenderId: "697327379541",
     appId: "1:697327379541:web:f175f278ae4e2815ce60dc"
 };
+
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+
 // =============================================
 // VARIABLES GLOBALES
 // =============================================
@@ -216,49 +220,54 @@ function updateCountdown() {
 }
 
 // =============================================
-// QR CODE: Librería local + fallback de texto
+// QR CODE: Generación local + fallback de texto
 // =============================================
 function generateQR(code, name) {
+    console.log('🔍 generateQR ejecutado para:', name, 'código:', code);
+    
     const container = document.getElementById('qr-container');
-    const img = document.getElementById('qrImage');
-    const fallback = document.getElementById('qrFallback');
-    const codeText = document.getElementById('qrCodeText');
-
-    // Limpiar contenedor (pero mantener los elementos)
-    if (img) img.style.display = 'none';
-    if (fallback) fallback.style.display = 'none';
-
-    if (!code || !name) {
-        if (fallback) {
-            codeText.textContent = 'Sin código';
-            fallback.style.display = 'block';
-        }
+    if (!container) {
+        console.error('❌ Contenedor QR no encontrado.');
         return;
     }
 
-    // 1. Intentar usar la librería QRCode.js (más fiable)
+    // Buscar o crear el contenedor para el QR (donde se pintará la librería)
+    let qrCanvas = document.getElementById('qrCanvasContainer');
+    if (!qrCanvas) {
+        qrCanvas = document.createElement('div');
+        qrCanvas.id = 'qrCanvasContainer';
+        qrCanvas.style.display = 'flex';
+        qrCanvas.style.justifyContent = 'center';
+        qrCanvas.style.alignItems = 'center';
+        qrCanvas.style.width = '100%';
+        qrCanvas.style.minHeight = '220px';
+        // Insertar al inicio del contenedor
+        container.prepend(qrCanvas);
+    }
+
+    // Limpiar el contenedor del QR (sin eliminar el elemento)
+    qrCanvas.innerHTML = '';
+
+    // Asegurar que el fallback esté visible por defecto (si existe)
+    const fallback = document.getElementById('qrFallback');
+    if (fallback) fallback.style.display = 'block';
+
+    if (!code || !name) {
+        // Si no hay datos, mostrar fallback con mensaje
+        if (fallback) {
+            const codeText = document.getElementById('qrCodeText');
+            if (codeText) codeText.textContent = 'Sin código';
+            fallback.style.display = 'block';
+        }
+        console.warn('⚠️ Datos insuficientes para generar QR.');
+        return;
+    }
+
+    // 1. Intentar usar la librería QRCode.js (local)
     try {
         if (typeof QRCode !== 'undefined') {
-            // Crear un nuevo contenedor para el QR
-            let qrContainer = document.getElementById('qrCanvasContainer');
-            if (!qrContainer) {
-                qrContainer = document.createElement('div');
-                qrContainer.id = 'qrCanvasContainer';
-                qrContainer.style.display = 'flex';
-                qrContainer.style.justifyContent = 'center';
-                qrContainer.style.alignItems = 'center';
-                qrContainer.style.width = '100%';
-                // Insertar antes del fallback
-                const containerParent = document.getElementById('qr-container');
-                if (containerParent) {
-                    containerParent.insertBefore(qrContainer, fallback);
-                }
-            }
-            // Limpiar contenedor
-            qrContainer.innerHTML = '';
-            
-            // Generar QR con la librería
-            new QRCode(qrContainer, {
+            console.log('🔄 Generando QR con QRCode.js...');
+            new QRCode(qrCanvas, {
                 text: `Invitado: ${name} | Código: ${code}`,
                 width: 200,
                 height: 200,
@@ -266,27 +275,28 @@ function generateQR(code, name) {
                 colorLight: "#ffffff",
                 correctLevel: QRCode.CorrectLevel.H
             });
-            
-            // Ocultar imagen y fallback
-            if (img) img.style.display = 'none';
+            // Si llegamos aquí, el QR se generó bien → ocultar fallback
             if (fallback) fallback.style.display = 'none';
+            console.log('✅ QR generado con éxito.');
             return;
+        } else {
+            console.warn('⚠️ QRCode no definido, usando fallback de texto.');
         }
     } catch (e) {
-        console.warn('⚠️ Error con QRCode.js, usando fallback:', e);
+        console.error('❌ Error al generar QR con QRCode.js:', e);
     }
 
     // 2. Fallback: mostrar el código en texto
     if (fallback) {
-        codeText.textContent = code;
+        const codeText = document.getElementById('qrCodeText');
+        if (codeText) codeText.textContent = code;
         fallback.style.display = 'block';
+        console.log('📝 Mostrando fallback de texto para el QR.');
     }
-    // Ocultar imagen
-    if (img) img.style.display = 'none';
 }
 
 // =============================================
-// NAVEGACIÓN TABS
+// NAVEGACIÓN TABS (incluye actualización del QR)
 // =============================================
 document.querySelectorAll('.bottom-nav .nav-item').forEach(item => {
     item.addEventListener('click', function() {
@@ -295,11 +305,14 @@ document.querySelectorAll('.bottom-nav .nav-item').forEach(item => {
         document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
         document.getElementById(this.dataset.target).classList.add('active');
         if (this.dataset.target === 'page-qr') {
+            // Pequeño retraso para asegurar que el DOM se actualice
             setTimeout(() => {
                 if (currentGuest) {
                     generateQR(currentGuest.code, currentGuest.name);
+                } else {
+                    console.warn('⚠️ No hay invitado cargado para generar QR.');
                 }
-            }, 300);
+            }, 400);
         }
     });
 });
@@ -430,4 +443,4 @@ window.addEventListener('load', function() {
     }
 });
 
-console.log('📱 Página de invitación con Bootstrap Icons y QR por API.');
+console.log('📱 Página de invitación con Bootstrap Icons y QR local.');
