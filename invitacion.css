@@ -1,4 +1,4 @@
-/* ========== INVITACIÓN - TONOS SÓLIDOS ========== */
+/* ========== INVITACIÓN - TONOS SÓLIDOS CON IMAGEN DE FONDO ========== */
 * {
     margin: 0;
     padding: 0;
@@ -7,12 +7,10 @@
 }
 
 :root {
-    --fondo: #1a1410; /* Fondo principal oscuro */
-    --fondo-tarjeta: #ffffff; /* Tarjetas blancas */
+    --fondo-tarjeta: #ffffff;
     --texto-principal: #1a1410;
     --texto-secundario: #5a4a3a;
-    --texto-claro: #ffffff;
-    --dorado: #b8860b; /* Dorado más sólido */
+    --dorado: #b8860b;
     --sombra: 0 8px 30px rgba(0, 0, 0, 0.15);
     --borde: 1px solid #e8e0d8;
     --toast-bg: #2d2d2d;
@@ -25,16 +23,18 @@ body {
     justify-content: center;
     align-items: center;
     padding: 16px;
-    background: var(--fondo);
-    /* Degradado sutil de fondo */
-    background: linear-gradient(145deg, #1a1410 0%, #2d1f18 100%);
+    /* === IMAGEN DE FONDO RESTAURADA === */
+    background: url('https://images.unsplash.com/photo-1511795409834-ef04bbd61622?w=1200&q=80') no-repeat center center fixed;
+    background-size: cover;
+    background-color: #1a1410; /* fallback */
 }
 
 #app-container {
     width: 100%;
     max-width: 420px;
     min-height: 780px;
-    background: #f5f0eb; /* Fondo sólido claro */
+    /* Fondo blanco con opacidad para que se vea la imagen de fondo */
+    background: rgba(255, 255, 255, 0.92);
     border-radius: 56px;
     box-shadow: 0 30px 60px rgba(0, 0, 0, 0.7);
     overflow: hidden;
@@ -51,7 +51,7 @@ body {
     left: 0;
     width: 100%;
     height: 100%;
-    background: #f5f0eb; /* Mismo fondo que el contenedor */
+    background: rgba(255, 255, 255, 0.95); /* Fondo blanco casi opaco para el splash */
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -84,7 +84,7 @@ body {
     content: '✦';
     font-size: 2rem;
     color: var(--dorado);
-    background: #f5f0eb;
+    background: white;
     width: 60px;
     height: 60px;
     border-radius: 50%;
