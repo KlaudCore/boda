@@ -24,7 +24,7 @@ body {
     align-items: center;
     padding: 16px;
     /* === IMAGEN DE FONDO RESTAURADA === */
-    background: url('https://images.unsplash.com/photo-1511795409834-ef04bbd61622?w=1200&q=80') no-repeat center center fixed;
+    background: url('back.jpg') no-repeat center center fixed;
     background-size: cover;
     background-color: #1a1410; /* fallback */
 }
