@@ -10,10 +10,6 @@ const firebaseConfig = {
     messagingSenderId: "697327379541",
     appId: "1:697327379541:web:f175f278ae4e2815ce60dc"
 };
-
-firebase.initializeApp(firebaseConfig);
-const db = firebase.firestore();
-
 // =============================================
 // VARIABLES GLOBALES
 // =============================================
@@ -134,7 +130,7 @@ function renderInvitation(guest) {
     if (!guest) {
         document.getElementById('main-app').innerHTML = `
                     <div style="display:flex; flex-direction:column; justify-content:center; align-items:center; height:100%; color:var(--texto-principal); text-align:center; padding:40px;">
-                        <i class="fas fa-exclamation-triangle" style="font-size:3rem; color:var(--dorado); margin-bottom:20px;"></i>
+                        <i class="bi bi-exclamation-triangle" style="font-size:3rem; color:var(--dorado); margin-bottom:20px;"></i>
                         <h2>Invitación no válida</h2>
                         <p style="color:var(--texto-secundario); margin-top:10px;">El código no es válido o ha expirado.</p>
                         <p style="color:var(--texto-secundario); font-size:0.8rem; margin-top:20px;">Código: ${getCodeFromURL() || 'Ninguno'}</p>
@@ -148,7 +144,7 @@ function renderInvitation(guest) {
     currentGuests = guest.maxGuests || 0;
     maxAcomp = guest.maxGuests || 0;
 
-    document.getElementById('guestName').innerHTML = `${guest.name} <i class="fas fa-crown"></i>`;
+    document.getElementById('guestName').innerHTML = `${guest.name} <i class="bi bi-crown"></i>`;
     document.getElementById('badgeMesa').textContent = `Mesa ${guest.table}`;
     document.getElementById('homeMesa').textContent = guest.table;
     document.getElementById('homeAcomp').textContent = guest.maxGuests;
@@ -177,21 +173,21 @@ function renderInvitation(guest) {
         rsvpYes.className = 'active-yes';
         rsvpNo.className = '';
         rsvpDetails.style.display = 'block';
-        confirmBtn.innerHTML = '<i class="fas fa-check-circle"></i> Ya confirmaste ✅';
+        confirmBtn.innerHTML = '<i class="bi bi-check-circle"></i> Ya confirmaste ✅';
         confirmBtn.className = 'btn-confirm confirmed';
         confirmBtn.disabled = true;
     } else if (guest.status === 'rechazado') {
         rsvpNo.className = 'active-no';
         rsvpYes.className = '';
         rsvpDetails.style.display = 'none';
-        confirmBtn.innerHTML = '<i class="fas fa-times-circle"></i> No asistirás ❌';
+        confirmBtn.innerHTML = '<i class="bi bi-x-circle"></i> No asistirás ❌';
         confirmBtn.className = 'btn-confirm rejected';
         confirmBtn.disabled = true;
     } else {
         rsvpYes.className = 'active-yes';
         rsvpNo.className = '';
         rsvpDetails.style.display = 'block';
-        confirmBtn.innerHTML = '<i class="fas fa-save"></i> Guardar confirmación';
+        confirmBtn.innerHTML = '<i class="bi bi-save"></i> Guardar confirmación';
         confirmBtn.className = 'btn-confirm';
         confirmBtn.disabled = false;
     }
@@ -220,44 +216,39 @@ function updateCountdown() {
 }
 
 // =============================================
-// QR CODE CON FALLBACK
+// QR CODE GENERADO POR API EXTERNA (sin librerías)
 // =============================================
 function generateQR(code, name) {
-    const container = document.getElementById('qrcode');
-    if (!container) {
-        console.warn('⚠️ Contenedor QR no encontrado.');
+    const img = document.getElementById('qrImage');
+    const fallback = document.getElementById('qrFallback');
+    const codeText = document.getElementById('qrCodeText');
+
+    // Mostrar siempre el código en texto por si la imagen falla
+    codeText.textContent = code;
+    fallback.style.display = 'block';
+
+    if (!code || !name) {
+        img.style.display = 'none';
         return;
     }
 
-    container.innerHTML = '';
+    // Construir la URL de la API de QRServer
+    const data = `Invitado: ${name} | Código: ${code}`;
+    const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(data)}&margin=10`;
 
-    // Mostrar siempre el código en texto como respaldo
-    // e intentar generar el QR si la librería está disponible
-    try {
-        if (typeof QRCode !== 'undefined' && QRCode) {
-            new QRCode(container, {
-                text: `Invitado: ${name} | Código: ${code}`,
-                width: 180,
-                height: 180,
-                colorDark: "#000000",
-                colorLight: "#ffffff",
-                correctLevel: QRCode.CorrectLevel.H
-            });
-            console.log('✅ QR generado con éxito.');
-        } else {
-            throw new Error('QRCode no definido');
-        }
-    } catch (e) {
-        console.warn('⚠️ Usando fallback de texto para QR:', e);
-        container.innerHTML = `
-            <div style="background:white; padding:16px; border-radius:12px; 
-                 color:black; font-size:1rem; text-align:center; box-shadow:0 2px 8px rgba(0,0,0,0.1);">
-                <div style="font-weight:bold; margin-bottom:4px;">Código de acceso</div>
-                <code style="font-size:1.2rem; background:#f0f0f0; padding:4px 12px; border-radius:6px;">${code}</code>
-            </div>
-        `;
-    }
+    // Intentar cargar la imagen
+    img.onload = function() {
+        img.style.display = 'block';
+        fallback.style.display = 'none';
+    };
+    img.onerror = function() {
+        // Si la imagen falla, se queda el fallback visible
+        img.style.display = 'none';
+        fallback.style.display = 'block';
+    };
+    img.src = qrUrl;
 }
+
 // =============================================
 // NAVEGACIÓN TABS
 // =============================================
@@ -289,7 +280,7 @@ rsvpYes.addEventListener('click', () => {
     rsvpYes.className = 'active-yes';
     rsvpNo.className = '';
     rsvpDetails.style.display = 'block';
-    confirmBtn.innerHTML = '<i class="fas fa-save"></i> Guardar confirmación';
+    confirmBtn.innerHTML = '<i class="bi bi-save"></i> Guardar confirmación';
     confirmBtn.className = 'btn-confirm';
     confirmBtn.disabled = false;
 });
@@ -298,7 +289,7 @@ rsvpNo.addEventListener('click', () => {
     rsvpNo.className = 'active-no';
     rsvpYes.className = '';
     rsvpDetails.style.display = 'none';
-    confirmBtn.innerHTML = '<i class="fas fa-times-circle"></i> Confirmar que no asistiré';
+    confirmBtn.innerHTML = '<i class="bi bi-x-circle"></i> Confirmar que no asistiré';
     confirmBtn.className = 'btn-confirm';
     confirmBtn.disabled = false;
 });
@@ -335,11 +326,11 @@ confirmBtn.addEventListener('click', function() {
         })
         .then(() => {
             if (newStatus === 'confirmado') {
-                this.innerHTML = '<i class="fas fa-check-circle"></i> Confirmado ✅';
+                this.innerHTML = '<i class="bi bi-check-circle"></i> Confirmado ✅';
                 this.className = 'btn-confirm confirmed';
                 showToast('✅ ¡Asistencia confirmada!', `Menú: ${menuSelected}`);
             } else {
-                this.innerHTML = '<i class="fas fa-times-circle"></i> No asistirás ❌';
+                this.innerHTML = '<i class="bi bi-x-circle"></i> No asistirás ❌';
                 this.className = 'btn-confirm rejected';
                 showToast('❌ Asistencia rechazada', 'Lamentamos no poder contar contigo.');
             }
@@ -387,7 +378,7 @@ document.getElementById('enterApp').addEventListener('click', function() {
     this.textContent = 'Cargando...';
     this.disabled = true;
     loadGuestData((guest) => {
-        this.textContent = '<i class="fas fa-chevron-right" style="margin-right:8px;"></i> Abrir invitación';
+        this.innerHTML = '<i class="bi bi-chevron-right"></i> Abrir invitación';
         this.disabled = false;
         renderInvitation(guest);
     });
@@ -403,4 +394,4 @@ window.addEventListener('load', function() {
     }
 });
 
-console.log('📱 Página de invitación con Firebase y emojis.');
+console.log('📱 Página de invitación con Bootstrap Icons y QR por API.');
