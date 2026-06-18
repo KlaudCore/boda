@@ -127,26 +127,28 @@ function renderMenuOptions() {
 }
 
 // =============================================
-// RENDERIZAR INVITACIÓN
+// RENDERIZAR INVITACIÓN (VERSIÓN MEJORADA)
 // =============================================
 function renderInvitation(guest) {
     if (!guest) {
         document.getElementById('main-app').innerHTML = `
-                    <div style="display:flex; flex-direction:column; justify-content:center; align-items:center; height:100%; color:var(--texto-principal); text-align:center; padding:40px;">
-                        <i class="bi bi-exclamation-triangle" style="font-size:3rem; color:var(--dorado); margin-bottom:20px;"></i>
-                        <h2>Invitación no válida</h2>
-                        <p style="color:var(--texto-secundario); margin-top:10px;">El código no es válido o ha expirado.</p>
-                        <p style="color:var(--texto-secundario); font-size:0.8rem; margin-top:20px;">Código: ${getCodeFromURL() || 'Ninguno'}</p>
-                    </div>
-                `;
+            <div style="display:flex; flex-direction:column; justify-content:center; align-items:center; height:100%; color:var(--texto-principal); text-align:center; padding:40px;">
+                <i class="bi bi-exclamation-triangle" style="font-size:3rem; color:var(--dorado); margin-bottom:20px;"></i>
+                <h2>Invitación no válida</h2>
+                <p style="color:var(--texto-secundario); margin-top:10px;">El código no es válido o ha expirado.</p>
+                <p style="color:var(--texto-secundario); font-size:0.8rem; margin-top:20px;">Código: ${getCodeFromURL() || 'Ninguno'}</p>
+            </div>
+        `;
         document.getElementById('splash').classList.add('hide');
         document.getElementById('main-app').classList.add('active');
         return;
     }
 
+    // Guardar datos del invitado
     currentGuests = guest.maxGuests || 0;
     maxAcomp = guest.maxGuests || 0;
 
+    // Actualizar elementos de la interfaz
     document.getElementById('guestName').innerHTML = `${guest.name} <i class="bi bi-crown"></i>`;
     document.getElementById('badgeMesa').textContent = `Mesa ${guest.table}`;
     document.getElementById('homeMesa').textContent = guest.table;
@@ -155,18 +157,19 @@ function renderInvitation(guest) {
     document.getElementById('qrMesa').textContent = guest.table;
     document.getElementById('maxAcompLabel').textContent = guest.maxGuests;
 
+    // Configurar acompañantes
     const savedGuests = guest.acompanantes || guest.maxGuests;
     currentGuests = savedGuests;
     document.getElementById('guestCount').textContent = currentGuests;
 
+    // Generar QR
     generateQR(guest.code, guest.name);
 
-    if (menuItems.length === 0) {
-        loadMenu();
-    } else {
-        renderMenuOptions();
-    }
+    // CARGAR MENÚ INMEDIATAMENTE
+    console.log('🔄 Cargando menú...');
+    loadMenu(); // <-- Esto es clave, debe ejecutarse siempre
 
+    // Configurar estado del RSVP
     const confirmBtn = document.getElementById('confirmRsvp');
     const rsvpYes = document.getElementById('rsvpYes');
     const rsvpNo = document.getElementById('rsvpNo');
@@ -195,11 +198,15 @@ function renderInvitation(guest) {
         confirmBtn.disabled = false;
     }
 
+    // Mostrar la app
     document.getElementById('splash').classList.add('hide');
     document.getElementById('main-app').classList.add('active');
 
+    // Iniciar cuenta regresiva
     updateCountdown();
     setInterval(updateCountdown, 1000);
+    
+    console.log('✅ Invitación renderizada correctamente');
 }
 
 // =============================================
