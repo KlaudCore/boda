@@ -130,34 +130,23 @@
                     </div>
                 </div>
 
-                <!-- QR -->
-                <div id="page-qr" class="page">
-                    <div class="glass-card" style="text-align:center;">
-                        <div class="card-title" style="justify-content:center;"><i class="bi bi-qr-code"></i> Mi pase digital</div>
-                        <div id="qr-container">
-                            <img id="qrImage" src="" alt="Código QR" style="display:none; width:200px; height:200px; border-radius:16px; background:white; padding:10px; box-shadow: 0 4px 16px rgba(0,0,0,0.1);" />
-                            <div id="qrFallback" style="display:none; background:white; padding:16px; border-radius:12px; color:black; font-size:1rem; text-align:center; box-shadow:0 2px 8px rgba(0,0,0,0.1);">
-                                <div style="font-weight:bold; margin-bottom:4px;">Código de acceso</div>
-                                <code style="font-size:1.2rem; background:#f0f0f0; padding:4px 12px; border-radius:6px;" id="qrCodeText">---</code>
-                            </div>
-                        </div>
-                        <div class="qr-subtext"><i class="bi bi-person"></i> <strong id="qrName">--</strong> · Mesa <strong id="qrMesa">--</strong></div>
-                        <div style="margin-top:16px; background:rgba(212,175,55,0.05); border-radius:18px; padding:12px; border:0.5px dashed rgba(212,175,55,0.2);">
-                            <i class="bi bi-shield-check" style="color:var(--dorado);"></i> <span class="text-light" style="font-size:0.7rem;">Escanea al llegar</span>
-                        </div>
-                    </div>
-                </div>
-
+               <!-- QR -->
+<div id="page-qr" class="page">
+    <div class="glass-card" style="text-align:center;">
+        <div class="card-title" style="justify-content:center;"><i class="bi bi-qr-code"></i> Mi pase digital</div>
+        <div id="qr-container" style="min-height:220px; display:flex; flex-direction:column; align-items:center; justify-content:center;">
+            <img id="qrImage" src="" alt="Código QR" style="display:none; width:200px; height:200px; border-radius:16px; background:white; padding:10px; box-shadow: 0 4px 16px rgba(0,0,0,0.1);" />
+            <div id="qrFallback" style="display:none; background:white; padding:20px; border-radius:16px; color:black; font-size:1.1rem; text-align:center; box-shadow:0 2px 8px rgba(0,0,0,0.1); width:100%; max-width:250px;">
+                <div style="font-weight:bold; margin-bottom:6px; color:#555;">Código de acceso</div>
+                <code style="font-size:1.4rem; background:#f0f0f0; padding:6px 16px; border-radius:8px; font-weight:bold; letter-spacing:2px;" id="qrCodeText">---</code>
             </div>
-
-            <nav class="bottom-nav">
-                <button class="nav-item active" data-target="page-home"><i class="bi bi-house"></i><span>Inicio</span></button>
-                <button class="nav-item" data-target="page-rsvp"><i class="bi bi-calendar-check"></i><span>RSVP</span></button>
-                <button class="nav-item" data-target="page-map"><i class="bi bi-geo-alt"></i><span>Ubicación</span></button>
-                <button class="nav-item" data-target="page-qr"><i class="bi bi-qr-code"></i><span>Pase</span></button>
-            </nav>
+        </div>
+        <div class="qr-subtext"><i class="bi bi-person"></i> <strong id="qrName">--</strong> · Mesa <strong id="qrMesa">--</strong></div>
+        <div style="margin-top:16px; background:rgba(212,175,55,0.05); border-radius:18px; padding:12px; border:0.5px dashed rgba(212,175,55,0.2);">
+            <i class="bi bi-shield-check" style="color:var(--dorado);"></i> <span class="text-light" style="font-size:0.7rem;">Escanea al llegar</span>
         </div>
     </div>
+</div>
 
     <script src="invitacion.js"></script>
 </body>
