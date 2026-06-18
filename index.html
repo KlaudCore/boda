@@ -5,13 +5,22 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <title>Invitación · Rebeca & Juan</title>
     <link rel="stylesheet" href="invitacion.css" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" />
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v6.5.1/css/all.css" />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js">
     </script>
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js">
     </script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js">
+    </script>
+    <!-- Fallback por si no carga -->
+    <script>
+        if (typeof QRCode === 'undefined') {
+            console.warn('⚠️ QRCode no cargado, usando fallback manual');
+            window.QRCode = function(container, options) {
+                container.innerHTML = `<div style="background:white; padding:16px; border-radius:8px; color:black; font-size:1.2rem; font-weight:bold;">Código: ${options.text}</div>`;
+            };
+        }
     </script>
 </head>
 <body>
