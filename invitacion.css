@@ -34,7 +34,7 @@ body {
     max-width: 420px;
     min-height: 780px;
     /* Fondo blanco con opacidad para que se vea la imagen de fondo */
-    background: rgba(255, 255, 255, 0.92);
+    background: rgba(255, 255, 255, 0.6);
     border-radius: 56px;
     box-shadow: 0 30px 60px rgba(0, 0, 0, 0.7);
     overflow: hidden;
