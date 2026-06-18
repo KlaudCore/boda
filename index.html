@@ -134,16 +134,19 @@
                     </div>
                 </div>
 
-               <!-- QR -->
+<!-- QR -->
 <div id="page-qr" class="page">
     <div class="glass-card" style="text-align:center;">
         <div class="card-title" style="justify-content:center;"><i class="bi bi-qr-code"></i> Mi pase digital</div>
         <div id="qr-container" style="min-height:220px; display:flex; flex-direction:column; align-items:center; justify-content:center;">
-            <img id="qrImage" src="" alt="Código QR" style="display:none; width:200px; height:200px; border-radius:16px; background:white; padding:10px; box-shadow: 0 4px 16px rgba(0,0,0,0.1);" />
+            <!-- Aquí se insertará el QR generado por QRCode.js -->
+            <div id="qrCanvasContainer"></div>
+            <!-- Fallback en texto (si la librería falla) -->
             <div id="qrFallback" style="display:none; background:white; padding:20px; border-radius:16px; color:black; font-size:1.1rem; text-align:center; box-shadow:0 2px 8px rgba(0,0,0,0.1); width:100%; max-width:250px;">
                 <div style="font-weight:bold; margin-bottom:6px; color:#555;">Código de acceso</div>
                 <code style="font-size:1.4rem; background:#f0f0f0; padding:6px 16px; border-radius:8px; font-weight:bold; letter-spacing:2px;" id="qrCodeText">---</code>
             </div>
+            <img id="qrImage" src="" alt="Código QR" style="display:none; width:200px; height:200px; border-radius:16px; background:white; padding:10px; box-shadow: 0 4px 16px rgba(0,0,0,0.1);" />
         </div>
         <div class="qr-subtext"><i class="bi bi-person"></i> <strong id="qrName">--</strong> · Mesa <strong id="qrMesa">--</strong></div>
         <div style="margin-top:16px; background:rgba(212,175,55,0.05); border-radius:18px; padding:12px; border:0.5px dashed rgba(212,175,55,0.2);">
