@@ -400,10 +400,20 @@ document.getElementById('enterApp').addEventListener('click', function() {
 });
 
 // =============================================
-// PRECARGA SILENCIOSA
+// CARGA AUTOMÁTICA (MODIFICADA)
 // =============================================
 window.addEventListener('load', function() {
-    if (getCodeFromURL()) {
+    const code = getCodeFromURL();
+    if (code) {
+        // Si hay código, cargamos datos y mostramos la app directamente
+        loadGuestData((guest) => {
+            renderInvitation(guest); // Esta función oculta el Splash y muestra #main-app
+            if (guest) {
+                loadMenu(); // Cargar menú solo si el invitado es válido
+            }
+        });
+    } else {
+        // Si no hay código, precargamos datos por si acaso
         loadGuestData(() => {});
         loadMenu();
     }
