@@ -216,58 +216,73 @@ function updateCountdown() {
 }
 
 // =============================================
-// QR CODE: SIEMPRE MUESTRA TEXTO + IMAGEN OPCIONAL
+// QR CODE: Librería local + fallback de texto
 // =============================================
 function generateQR(code, name) {
+    const container = document.getElementById('qr-container');
     const img = document.getElementById('qrImage');
     const fallback = document.getElementById('qrFallback');
     const codeText = document.getElementById('qrCodeText');
 
-    // 1. Mostrar siempre el código en texto (fallback visible)
-    if (code) {
+    // Limpiar contenedor (pero mantener los elementos)
+    if (img) img.style.display = 'none';
+    if (fallback) fallback.style.display = 'none';
+
+    if (!code || !name) {
+        if (fallback) {
+            codeText.textContent = 'Sin código';
+            fallback.style.display = 'block';
+        }
+        return;
+    }
+
+    // 1. Intentar usar la librería QRCode.js (más fiable)
+    try {
+        if (typeof QRCode !== 'undefined') {
+            // Crear un nuevo contenedor para el QR
+            let qrContainer = document.getElementById('qrCanvasContainer');
+            if (!qrContainer) {
+                qrContainer = document.createElement('div');
+                qrContainer.id = 'qrCanvasContainer';
+                qrContainer.style.display = 'flex';
+                qrContainer.style.justifyContent = 'center';
+                qrContainer.style.alignItems = 'center';
+                qrContainer.style.width = '100%';
+                // Insertar antes del fallback
+                const containerParent = document.getElementById('qr-container');
+                if (containerParent) {
+                    containerParent.insertBefore(qrContainer, fallback);
+                }
+            }
+            // Limpiar contenedor
+            qrContainer.innerHTML = '';
+            
+            // Generar QR con la librería
+            new QRCode(qrContainer, {
+                text: `Invitado: ${name} | Código: ${code}`,
+                width: 200,
+                height: 200,
+                colorDark: "#000000",
+                colorLight: "#ffffff",
+                correctLevel: QRCode.CorrectLevel.H
+            });
+            
+            // Ocultar imagen y fallback
+            if (img) img.style.display = 'none';
+            if (fallback) fallback.style.display = 'none';
+            return;
+        }
+    } catch (e) {
+        console.warn('⚠️ Error con QRCode.js, usando fallback:', e);
+    }
+
+    // 2. Fallback: mostrar el código en texto
+    if (fallback) {
         codeText.textContent = code;
         fallback.style.display = 'block';
-    } else {
-        fallback.style.display = 'none';
     }
-
-    // 2. Intentar mostrar la imagen QR (mejora visual)
-    if (code && name) {
-        const data = `Invitado: ${name} | Código: ${code}`;
-        const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(data)}&margin=10`;
-        
-        // Configurar la imagen
-        img.onload = function() {
-            // Si la imagen carga, la mostramos y ocultamos el fallback
-            img.style.display = 'block';
-            fallback.style.display = 'none';
-        };
-        img.onerror = function() {
-            // Si la imagen falla, ocultamos la imagen y dejamos el fallback visible
-            img.style.display = 'none';
-            fallback.style.display = 'block';
-        };
-        img.src = qrUrl;
-    } else {
-        img.style.display = 'none';
-    }
-}
-
-    // Construir la URL de la API de QRServer
-    const data = `Invitado: ${name} | Código: ${code}`;
-    const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(data)}&margin=10`;
-
-    // Intentar cargar la imagen
-    img.onload = function() {
-        img.style.display = 'block';
-        fallback.style.display = 'none';
-    };
-    img.onerror = function() {
-        // Si la imagen falla, se queda el fallback visible
-        img.style.display = 'none';
-        fallback.style.display = 'block';
-    };
-    img.src = qrUrl;
+    // Ocultar imagen
+    if (img) img.style.display = 'none';
 }
 
 // =============================================
