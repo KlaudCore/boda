@@ -172,8 +172,6 @@ function addMenuItem() {
     const descripcion = document.getElementById('menuDesc').value.trim();
     const icono = document.getElementById('menuIcon').value.trim() || '🍽️';
 
-    console.log('🔍 Valor del emoji:', icono); // 👈 AÑADE ESTA LÍNEA
-
     if (!nombre) {
         showToast('⚠️ El nombre del plato es obligatorio.');
         return;

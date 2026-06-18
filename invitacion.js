@@ -127,28 +127,26 @@ function renderMenuOptions() {
 }
 
 // =============================================
-// RENDERIZAR INVITACIÓN (VERSIÓN MEJORADA)
+// RENDERIZAR INVITACIÓN
 // =============================================
 function renderInvitation(guest) {
     if (!guest) {
         document.getElementById('main-app').innerHTML = `
-            <div style="display:flex; flex-direction:column; justify-content:center; align-items:center; height:100%; color:var(--texto-principal); text-align:center; padding:40px;">
-                <i class="bi bi-exclamation-triangle" style="font-size:3rem; color:var(--dorado); margin-bottom:20px;"></i>
-                <h2>Invitación no válida</h2>
-                <p style="color:var(--texto-secundario); margin-top:10px;">El código no es válido o ha expirado.</p>
-                <p style="color:var(--texto-secundario); font-size:0.8rem; margin-top:20px;">Código: ${getCodeFromURL() || 'Ninguno'}</p>
-            </div>
-        `;
+                    <div style="display:flex; flex-direction:column; justify-content:center; align-items:center; height:100%; color:var(--texto-principal); text-align:center; padding:40px;">
+                        <i class="bi bi-exclamation-triangle" style="font-size:3rem; color:var(--dorado); margin-bottom:20px;"></i>
+                        <h2>Invitación no válida</h2>
+                        <p style="color:var(--texto-secundario); margin-top:10px;">El código no es válido o ha expirado.</p>
+                        <p style="color:var(--texto-secundario); font-size:0.8rem; margin-top:20px;">Código: ${getCodeFromURL() || 'Ninguno'}</p>
+                    </div>
+                `;
         document.getElementById('splash').classList.add('hide');
         document.getElementById('main-app').classList.add('active');
         return;
     }
 
-    // Guardar datos del invitado
     currentGuests = guest.maxGuests || 0;
     maxAcomp = guest.maxGuests || 0;
 
-    // Actualizar elementos de la interfaz
     document.getElementById('guestName').innerHTML = `${guest.name} <i class="bi bi-crown"></i>`;
     document.getElementById('badgeMesa').textContent = `Mesa ${guest.table}`;
     document.getElementById('homeMesa').textContent = guest.table;
@@ -157,19 +155,18 @@ function renderInvitation(guest) {
     document.getElementById('qrMesa').textContent = guest.table;
     document.getElementById('maxAcompLabel').textContent = guest.maxGuests;
 
-    // Configurar acompañantes
     const savedGuests = guest.acompanantes || guest.maxGuests;
     currentGuests = savedGuests;
     document.getElementById('guestCount').textContent = currentGuests;
 
-    // Generar QR
     generateQR(guest.code, guest.name);
 
-    // CARGAR MENÚ INMEDIATAMENTE
-    console.log('🔄 Cargando menú...');
-    loadMenu(); // <-- Esto es clave, debe ejecutarse siempre
+    if (menuItems.length === 0) {
+        loadMenu();
+    } else {
+        renderMenuOptions();
+    }
 
-    // Configurar estado del RSVP
     const confirmBtn = document.getElementById('confirmRsvp');
     const rsvpYes = document.getElementById('rsvpYes');
     const rsvpNo = document.getElementById('rsvpNo');
@@ -198,15 +195,11 @@ function renderInvitation(guest) {
         confirmBtn.disabled = false;
     }
 
-    // Mostrar la app
     document.getElementById('splash').classList.add('hide');
     document.getElementById('main-app').classList.add('active');
 
-    // Iniciar cuenta regresiva
     updateCountdown();
     setInterval(updateCountdown, 1000);
-    
-    console.log('✅ Invitación renderizada correctamente');
 }
 
 // =============================================
@@ -270,14 +263,6 @@ function generateQR(code, name) {
         }
     }
 }
-// =============================================
-// VERIFICAR ELEMENTOS DE NAVEGACIÓN
-// =============================================
-console.log('🔍 Verificando elementos de navegación:');
-console.log('  - page-home:', document.getElementById('page-home') ? '✅' : '❌');
-console.log('  - page-rsvp:', document.getElementById('page-rsvp') ? '✅' : '❌');
-console.log('  - page-map:', document.getElementById('page-map') ? '✅' : '❌');
-console.log('  - page-qr:', document.getElementById('page-qr') ? '✅' : '❌');
 
 // =============================================
 // NAVEGACIÓN TABS
@@ -415,42 +400,13 @@ document.getElementById('enterApp').addEventListener('click', function() {
 });
 
 // =============================================
-// CARGA AUTOMÁTICA MEJORADA
+// PRECARGA SILENCIOSA
 // =============================================
 window.addEventListener('load', function() {
-    const code = getCodeFromURL();
-    
-    if (code) {
-        // Si hay código, cargamos los datos y mostramos la app directamente
-        loadGuestData((guest) => {
-            // Esto oculta el splash y muestra #main-app
-            renderInvitation(guest);
-            
-            if (guest) {
-                // Si el invitado es válido, cargamos el menú
-                loadMenu();
-            }
-        });
-    } else {
-        // Si no hay código, mostramos mensaje de error
-        renderInvitation(null);
+    if (getCodeFromURL()) {
+        loadGuestData(() => {});
+        loadMenu();
     }
 });
 
-// =============================================
-// HERRAMIENTA DE DEPURACIÓN
-// =============================================
-console.log('🔍 Estado de la aplicación:');
-console.log('  - Código en URL:', getCodeFromURL());
-console.log('  - Invitado cargado:', currentGuest ? '✅ Sí' : '❌ No');
-console.log('  - Elementos del menú:', menuItems.length);
-console.log('  - App visible:', document.getElementById('main-app').classList.contains('active'));
-
-// Comando para depuración en consola (escribe 'debug()' en la consola)
-window.debug = function() {
-    console.log('📊 DEBUG:');
-    console.log('  currentGuest:', currentGuest);
-    console.log('  menuItems:', menuItems);
-    console.log('  main-app display:', getComputedStyle(document.getElementById('main-app')).display);
-    console.log('  page-rsvp display:', getComputedStyle(document.getElementById('page-rsvp')).display);
-};
+console.log('📱 Página de invitación con Bootstrap Icons y QR por API.');
