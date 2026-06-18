@@ -428,3 +428,21 @@ window.addEventListener('load', function() {
         renderInvitation(null);
     }
 });
+
+// =============================================
+// HERRAMIENTA DE DEPURACIÓN
+// =============================================
+console.log('🔍 Estado de la aplicación:');
+console.log('  - Código en URL:', getCodeFromURL());
+console.log('  - Invitado cargado:', currentGuest ? '✅ Sí' : '❌ No');
+console.log('  - Elementos del menú:', menuItems.length);
+console.log('  - App visible:', document.getElementById('main-app').classList.contains('active'));
+
+// Comando para depuración en consola (escribe 'debug()' en la consola)
+window.debug = function() {
+    console.log('📊 DEBUG:');
+    console.log('  currentGuest:', currentGuest);
+    console.log('  menuItems:', menuItems);
+    console.log('  main-app display:', getComputedStyle(document.getElementById('main-app')).display);
+    console.log('  page-rsvp display:', getComputedStyle(document.getElementById('page-rsvp')).display);
+};
