@@ -478,17 +478,30 @@ function showToast(message) {
 }
 
 // =============================================
-// INICIALIZAR
+// INICIALIZAR CON AUTENTICACIÓN ANÓNIMA ✅
 // =============================================
-document.getElementById('resetDataBtn').addEventListener('click', resetAllData);
-document.getElementById('downloadTemplateBtn').addEventListener('click', downloadTemplate);
-document.getElementById('addMenuBtn').addEventListener('click', addMenuItem);
 
-// Enter para añadir menú
-document.getElementById('menuName').addEventListener('keypress', (e) => { if (e.key === 'Enter') addMenuItem(); });
-document.getElementById('menuDesc').addEventListener('keypress', (e) => { if (e.key === 'Enter') addMenuItem(); });
+// 🔥 PASO 1: Autenticamos al usuario anónimo
+firebase.auth().signInAnonymously()
+    .then((userCredential) => {
+        console.log('✅ Autenticación anónima exitosa. UID:', userCredential.user.uid);
+        document.getElementById('syncStatus').innerHTML = '🟢 Conectado (Anónimo)';
+        
+        // 🔥 PASO 2: SOLO DESPUÉS de autenticar, conectamos a Firestore
+        listenToGuests();
+        listenToMenu();
 
-listenToGuests();
-listenToMenu();
+        // 🔥 PASO 3: Configuramos los eventos de los botones
+        document.getElementById('resetDataBtn').addEventListener('click', resetAllData);
+        document.getElementById('downloadTemplateBtn').addEventListener('click', downloadTemplate);
+        document.getElementById('addMenuBtn').addEventListener('click', addMenuItem);
+        document.getElementById('menuName').addEventListener('keypress', (e) => { if (e.key === 'Enter') addMenuItem(); });
+        document.getElementById('menuDesc').addEventListener('keypress', (e) => { if (e.key === 'Enter') addMenuItem(); });
 
-console.log('🚀 Dashboard con gestión de menú conectado a Firebase.');
+        console.log('🚀 Dashboard con gestión de menú conectado a Firebase vía Auth Anónima.');
+    })
+    .catch((error) => {
+        console.error('❌ Error en autenticación anónima:', error);
+        document.getElementById('syncStatus').innerHTML = '🔴 Error de autenticación';
+        showToast('⚠️ No se pudo autenticar. Revisa la consola.');
+    });
